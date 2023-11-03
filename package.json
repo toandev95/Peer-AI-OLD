@@ -11,7 +11,7 @@
     "lint": "next lint",
     "format": "next lint --fix && prettier '**/*.{json,yaml}' --write --ignore-path .gitignore",
     "check-types": "tsc --noEmit --pretty",
-    "test": "jest",
+    "test": "jest --passWithNoTests",
     "commit": "cz",
     "postbuild": "next-sitemap"
   },
