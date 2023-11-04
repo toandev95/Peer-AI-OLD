@@ -28,6 +28,10 @@ const Layout = ({ children }: { children: ReactNode }) => {
         const openAIKey = emptyToUndefined(configStore.openAIKey);
         const openAIEndpoint = emptyToUndefined(configStore.openAIEndpoint);
 
+        if (isNil(accessCode) && isNil(openAIKey)) {
+          throw new Error('The access code or OpenAI key is required.');
+        }
+
         const res = await fetch('/api/models', {
           method: 'POST',
           body: JSON.stringify({ openAIKey, openAIEndpoint }),

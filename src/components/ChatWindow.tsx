@@ -641,7 +641,7 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
               />
               <ToolbarPluginItem
                 title="PDF Reader"
-                subtitle="Read the content of a PDF file."
+                subtitle="Read the content of a PDF file from one or more public URLs"
                 values={currentChat.settings.plugins}
                 plugin={ChatPlugin.PDFReader}
                 onCheckedChange={handlePluginChange}
