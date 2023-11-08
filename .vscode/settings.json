@@ -14,8 +14,8 @@
   "typescript.tsdk": "node_modules/typescript/lib", // Use the workspace version of TypeScript
   "typescript.enablePromptUseWorkspaceTsdk": true, // For security reasons it's require that users opt into using the workspace version of typescript
   "jest.autoRun": {
-    "watch": false // Start the jest with the watch flag
-    // "onStartup": ["all-tests"] // Run all tests upon project launch
+    "watch": false, // Start the jest with the watch flag
+    "onStartup": ["all-tests"] // Run all tests upon project launch
   },
   "jest.showCoverageOnLoad": true, // Show code coverage when the project is launched
   "jest.autoRevealOutput": "on-exec-error", // Don't automatically open test explorer terminal on launch
@@ -24,15 +24,13 @@
     "editor.formatOnSave": true,
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "prettier.ignorePath": ".gitignore",
-  "[css]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
+  "prettier.ignorePath": ".gitignore", // Don't run prettier for files listed in .gitignore
   "[postcss]": {
     "editor.formatOnSave": true,
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[markdown]": {
+    "editor.formatOnSave": true,
     "editor.defaultFormatter": "esbenp.prettier-vscode"
-  } // Don't run prettier for files listed in .gitignore
+  }
 }
