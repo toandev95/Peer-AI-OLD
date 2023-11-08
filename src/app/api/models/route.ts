@@ -1,4 +1,4 @@
-import _, { includes, isEqual } from 'lodash';
+import _, { isEqual, startsWith } from 'lodash';
 import type { ServerRuntime } from 'next';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
@@ -28,7 +28,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<any>> {
 
     const models = _(res.data)
       .filter((model) => isEqual(model.owned_by, 'openai'))
-      .filter((model) => includes(['gpt-4', 'gpt-3.5-turbo'], model.id))
+      .filter((model) => startsWith(model.id, 'gpt-'))
       .orderBy((model) => model.created, 'desc')
       .map((model) => model.id)
       .value();

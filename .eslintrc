@@ -35,7 +35,8 @@
         "airbnb",
         "airbnb-typescript",
         "next/core-web-vitals",
-        "plugin:prettier/recommended"
+        "plugin:prettier/recommended",
+        "plugin:jsx-a11y/recommended"
       ],
       "parserOptions": {
         "project": "./tsconfig.json"
