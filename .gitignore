@@ -44,4 +44,4 @@ local
 .vercel
 
 # yarn
-.yarn
+yarn.lock
