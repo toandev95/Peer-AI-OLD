@@ -140,8 +140,11 @@ const ChatBubble = ({
       case 'pdf':
         return '📃 PDF Reader';
 
-      case 'dadjoke':
-        return '😎 Dad Joke';
+      case 'text-to-image':
+        return '🌄 Image Generation';
+
+      case 'image-to-text':
+        return '🌄 Image Captioning';
 
       case 'requests_get':
         return '🛜 Web Render (GET)';

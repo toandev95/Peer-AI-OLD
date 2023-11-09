@@ -24,6 +24,8 @@ import { type NextRequest, NextResponse } from 'next/server';
 
 import { LangChainStream } from '@/langchain';
 import { DuckDuckGo, PDFReader } from '@/langchain/tools';
+import { ImageToText } from '@/langchain/tools/image-to-text';
+import { TextToImage } from '@/langchain/tools/text-to-image';
 import { auth } from '@/lib/helpers';
 import type { IChatMessage } from '@/types';
 import { ChatPlugin } from '@/types';
@@ -157,6 +159,11 @@ export async function POST(
 
   if (includes(plugins, ChatPlugin.PDFReader)) {
     tools.push(new PDFReader(embeddings));
+  }
+
+  if (includes(plugins, ChatPlugin.ImageGenerator)) {
+    tools.push(new TextToImage());
+    tools.push(new ImageToText());
   }
 
   const executor = await initializeAgentExecutorWithOptions(tools, llm, {

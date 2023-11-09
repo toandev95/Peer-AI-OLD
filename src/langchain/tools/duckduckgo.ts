@@ -13,6 +13,7 @@ import _ from 'lodash';
  *
  * @author Toan Doan
  */
+
 class DuckDuckGo extends Tool {
   public name: string = 'search';
 

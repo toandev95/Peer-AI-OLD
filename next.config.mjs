@@ -26,6 +26,11 @@ export default bundleAnalyzer({
       'utf-8-validate': 'utf-8-validate',
     });
 
+    Object.assign(config.resolve.alias, {
+      sharp$: false,
+      'onnxruntime-node$': false,
+    });
+
     return config;
   },
   modularizeImports: {
@@ -33,7 +38,5 @@ export default bundleAnalyzer({
       transform: 'react-icons/{{member}}',
     },
   },
-  experimental: {
-    webpackBuildWorker: true,
-  },
+  experimental: { webpackBuildWorker: true },
 });

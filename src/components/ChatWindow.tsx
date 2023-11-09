@@ -646,6 +646,13 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
                 plugin={ChatPlugin.PDFReader}
                 onCheckedChange={handlePluginChange}
               />
+              <ToolbarPluginItem
+                title="Image Generation"
+                subtitle="Generate images from text prompts."
+                values={currentChat.settings.plugins}
+                plugin={ChatPlugin.ImageGenerator}
+                onCheckedChange={handlePluginChange}
+              />
             </PopoverContent>
           </Popover>
           <Dialog>

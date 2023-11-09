@@ -74,6 +74,7 @@
     "remark-breaks": "^4.0.0",
     "remark-gfm": "^3.0.1",
     "remark-math": "^6.0.0",
+    "replicate": "^0.18.0",
     "sharp": "^0.32.6",
     "swr": "^2.2.4",
     "tailwind-merge": "^1.14.0",
