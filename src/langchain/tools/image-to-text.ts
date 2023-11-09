@@ -1,6 +1,6 @@
+/* eslint-disable no-await-in-loop, no-constant-condition */
 import { Tool } from 'langchain/tools';
-import { isString } from 'lodash';
-import Replicate from 'replicate';
+import { includes, isNil, isString } from 'lodash';
 
 /**
  * A tool that converts an image to text.
@@ -17,20 +17,61 @@ class ImageToText extends Tool {
   // eslint-disable-next-line no-underscore-dangle, class-methods-use-this
   public async _call(input: string): Promise<string> {
     try {
-      const replicate = new Replicate({
-        auth: process.env.REPLICATE_API_TOKEN as string,
+      const res = await fetch('https://api.replicate.com/v1/predictions', {
+        method: 'post',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Token ${process.env.REPLICATE_API_TOKEN}`,
+        },
+        body: JSON.stringify({
+          version: process.env.REPLICATE_IMAGE_TO_TEXT_ID,
+          input: { image: input },
+        }),
       });
 
-      const output = await replicate.run(
-        process.env.REPLICATE_IMAGE_TO_TEXT_ID as any,
-        { input: { image: input } },
-      );
+      const json = await res.json();
 
-      if (isString(output)) {
-        return (output as unknown as string).trim();
+      let output;
+
+      if (json.status === 'starting') {
+        while (true) {
+          await new Promise((resolve) => {
+            setTimeout(resolve, 2000);
+          });
+
+          const resl = await fetch(
+            `https://api.replicate.com/v1/predictions/${json.id}`,
+            {
+              method: 'post',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Token ${process.env.REPLICATE_API_TOKEN}`,
+              },
+              body: JSON.stringify({}),
+            },
+          );
+
+          const jsonl = await resl.json();
+
+          if (includes(['failed', 'canceled'], jsonl.status)) {
+            break;
+          }
+
+          if (jsonl.status === 'succeeded') {
+            if (isString(jsonl.output)) {
+              output = (jsonl.output as string).trim();
+            }
+
+            break;
+          }
+        }
       }
 
-      return 'No results were found.';
+      if (!isNil(output)) {
+        return output;
+      }
+
+      return 'Cannot convert the image to text.';
     } catch (e) {
       return (e as Error).toString();
     }
