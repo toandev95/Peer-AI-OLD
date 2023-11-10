@@ -190,8 +190,8 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
             ...filteredMessages,
             {
               role: 'user',
-              content: `Based on our conversation, generate a 4-6 word title that captures its essence.
-            The title should not contain introductions, punctuation (including quotation marks), periods, symbols, or additional text.`,
+              content: `Based on our conversation, create a 2-10 word title that describes the main topic of the conversation. For example 'OpenAI Docs'.
+              The title SHOULD NOT contain introductions, punctuation, quotation marks, periods, symbols, or additional text.`,
             },
           ],
           streaming: false,

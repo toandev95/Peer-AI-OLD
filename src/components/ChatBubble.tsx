@@ -231,7 +231,7 @@ const ChatBubble = ({
           )}
           {!isEmpty(message.content) && (
             <MemoizedReactMarkdown
-              className="prose prose-sm select-text break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
+              className="prose prose-sm select-text break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 prose-img:my-0"
               remarkPlugins={[remarkGfm, remarkMath, remarkBreaks]}
               components={{
                 p: ({ children }) => (
