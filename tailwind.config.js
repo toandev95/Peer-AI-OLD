@@ -17,8 +17,8 @@ module.exports = {
     },
     extend: {
       fontFamily: {
-        sans: ['var(--font-ibm-plex-sans)'],
-        mono: ['var(--font-ibm-plex-mono)'],
+        sans: ['var(--font-ibm-plex-sans)', 'sans-serif'],
+        mono: ['var(--font-ibm-plex-mono)', 'monospace'],
       },
       colors: {
         border: 'hsl(var(--border))',
