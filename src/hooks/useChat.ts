@@ -18,7 +18,6 @@ import _, {
   isString,
   map,
 } from 'lodash';
-import moment from 'moment';
 import type {
   ChangeEvent,
   Dispatch,
@@ -31,6 +30,7 @@ import type { KeyedMutator } from 'swr';
 import useSWR from 'swr';
 
 import { isJSON, uuid } from '@/lib/helpers';
+import moment from '@/lib/moment';
 import type { IAgentAction } from '@/types';
 
 type Message = RawMessage & { tools?: IAgentAction[] };

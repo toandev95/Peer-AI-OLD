@@ -8,14 +8,13 @@ import type {
 } from '@hello-pangea/dnd';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import _, { includes, isNil } from 'lodash';
-import moment from 'moment';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTheme } from 'next-themes';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  RiAddCircleLine,
+  RiChat3Line,
   RiCloseCircleLine,
   RiLightbulbFlashLine,
   RiLightbulbLine,
@@ -24,10 +23,13 @@ import {
 } from 'react-icons/ri';
 
 import { cn } from '@/lib/helpers';
+import moment from '@/lib/moment';
 import { useChatStore, useConfigStore } from '@/stores';
 import type { IChat } from '@/types';
 
+import { useConfirmDialog } from './Providers/ConfirmDialogProvider';
 import { Button } from './UI/Button';
+import { ConfirmDialog } from './UI/ConfirmDialog';
 
 const MenuItem = ({
   chat,
@@ -75,6 +77,8 @@ const MenuItem = ({
 const Sidebar = () => {
   const { t } = useTranslation();
 
+  const confirm = useConfirmDialog(ConfirmDialog);
+
   const router = useRouter();
   const { theme, systemTheme, setTheme } = useTheme();
 
@@ -114,11 +118,16 @@ const Sidebar = () => {
   }, [handleResize]);
 
   const handleRemoveChat = (id: string) => {
-    chatStore.removeChat(id);
+    confirm({
+      message: 'Are you sure you want to remove this chat?',
+      onConfirmAction: () => {
+        chatStore.removeChat(id);
 
-    if (currentChatId === id) {
-      router.push('/');
-    }
+        if (currentChatId === id) {
+          router.push('/');
+        }
+      },
+    });
   };
 
   const handleDragEnd = ({ source, destination }: DropResult) => {
@@ -202,7 +211,7 @@ const Sidebar = () => {
         </div>
         <div className="flex justify-between pt-5">
           <Button variant="outline" onClick={() => router.push('/')}>
-            <RiAddCircleLine size={18} />
+            <RiChat3Line size={18} />
             <div className="ml-1.5">{t('sidebar.newChat')}</div>
           </Button>
           <div className="flex gap-1">

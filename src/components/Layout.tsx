@@ -1,7 +1,8 @@
 'use client';
 
 import { isArray, isEmpty, isNil } from 'lodash';
-import { type ReactNode, useEffect } from 'react';
+import type { ReactNode } from 'react';
+import { useEffect } from 'react';
 
 import { useBreakpoint } from '@/hooks';
 import { cn, emptyToUndefined } from '@/lib/helpers';

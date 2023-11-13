@@ -8,6 +8,7 @@ import i18n from '@/i18n';
 import { StoreKey } from '@/lib/store-keys';
 
 import NoSSR from './NoSSR';
+import { ConfirmDialogProvider } from './Providers/ConfirmDialogProvider';
 import { TooltipProvider } from './UI/Tooltip';
 
 const Providers = ({ children }: { children: ReactNode }) => (
@@ -19,7 +20,9 @@ const Providers = ({ children }: { children: ReactNode }) => (
         defaultTheme="system"
         enableSystem
       >
-        <TooltipProvider>{children}</TooltipProvider>
+        <ConfirmDialogProvider>
+          <TooltipProvider>{children}</TooltipProvider>
+        </ConfirmDialogProvider>
       </ThemeProvider>
     </I18nextProvider>
   </NoSSR>

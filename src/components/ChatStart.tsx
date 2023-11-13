@@ -4,7 +4,8 @@ import _, { isEmpty, isNil } from 'lodash';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
-import { RiFlashlightLine, RiSearch2Line } from 'react-icons/ri';
+import { useTranslation } from 'react-i18next';
+import { RiChat3Line, RiSearch2Line } from 'react-icons/ri';
 
 import { useBreakpoint } from '@/hooks';
 import { useChatStore, useMaskStore } from '@/stores';
@@ -14,6 +15,8 @@ import { Button } from './UI/Button';
 import { FadeIn } from './UI/FadeIn';
 
 const ChatStart = () => {
+  const { t } = useTranslation();
+
   const router = useRouter();
 
   const chatStore = useChatStore();
@@ -33,7 +36,7 @@ const ChatStart = () => {
   }, [breakpoint]);
 
   const handleAddChat = (mask?: IMask) => {
-    const newChat = chatStore.addChat('New Chat');
+    const newChat = chatStore.addChat(t('chatStart.newChat'));
 
     if (!isNil(mask)) {
       chatStore.assignMaskToChat(newChat.id, mask);
@@ -79,18 +82,18 @@ const ChatStart = () => {
             🙀
           </div>
         </div>
-        <div className="mb-2 text-2xl font-bold">Choose a mask</div>
-        <div className="text-base">Chat with the soul behind the mask</div>
+        <div className="mb-2 text-2xl font-bold">{t('chatStart.title')}</div>
+        <div className="text-base">{t('chatStart.subtitle')}</div>
         <div className="mt-10 flex gap-2">
           <Button variant="outline" asChild>
             <Link href="/masks">
               <RiSearch2Line size={18} />
-              <span className="ml-2">Find More</span>
+              <span className="ml-2">{t('chatStart.findMore')}</span>
             </Link>
           </Button>
           <Button variant="default" onClick={() => handleAddChat()}>
-            <RiFlashlightLine size={18} />
-            <span className="ml-2">Just Start</span>
+            <RiChat3Line size={18} />
+            <span className="ml-2">{t('chatStart.justStart')}</span>
           </Button>
         </div>
       </FadeIn>

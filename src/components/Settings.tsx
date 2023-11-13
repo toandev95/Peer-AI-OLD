@@ -7,12 +7,15 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@radix-ui/react-popover';
-import { isEmpty, isNil, toNumber, valuesIn } from 'lodash';
+import { isEmpty, isNil, map, toNumber, valuesIn } from 'lodash';
 import { useRouter } from 'next/navigation';
 import { useTheme } from 'next-themes';
-import { type ReactNode, useState } from 'react';
+import type { ReactNode } from 'react';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { RiCloseLine } from 'react-icons/ri';
 
+import i18n, { supportedLanguages } from '@/i18n';
 import {
   useChatStore,
   useConfigStore,
@@ -22,8 +25,10 @@ import {
 import { SendKeys } from '@/types';
 
 import { AppBar, AppBarIconButton } from './AppBar';
+import { useConfirmDialog } from './Providers/ConfirmDialogProvider';
 import { Button } from './UI/Button';
 import { Card } from './UI/Card';
+import { ConfirmDialog } from './UI/ConfirmDialog';
 import { FadeIn } from './UI/FadeIn';
 import { DebouncedInput, Input } from './UI/Input';
 import {
@@ -92,6 +97,10 @@ const EmojiPickerButton = ({
 };
 
 const Settings = () => {
+  const { t } = useTranslation();
+
+  const confirm = useConfirmDialog(ConfirmDialog);
+
   const router = useRouter();
 
   const configStore = useConfigStore();
@@ -102,21 +111,38 @@ const Settings = () => {
   const updateConfig = useConfigStore((state) => state.updateConfig);
 
   const handleResetSettings = () => {
-    configStore.clear();
+    confirm({
+      message: 'Are you sure you want to reset all settings to default?',
+      onConfirmAction: () => {
+        configStore.clear();
+
+        localStorage.removeItem('i18nextLng');
+        i18n.changeLanguage();
+      },
+    });
   };
 
   const handleDeleteAll = () => {
-    configStore.clear();
-    chatStore.clear();
-    maskStore.clear();
-    promptStore.clear();
+    confirm({
+      message:
+        'Are you sure you want to delete all conversations and settings?',
+      onConfirmAction: () => {
+        configStore.clear();
+        chatStore.clear();
+        maskStore.clear();
+        promptStore.clear();
+
+        localStorage.removeItem('i18nextLng');
+        i18n.changeLanguage();
+      },
+    });
   };
 
   return (
     <>
       <AppBar
-        title="Settings"
-        subtitle="All settings as per your preference."
+        title={t('settings.title')}
+        subtitle={t('settings.subtitle')}
         actions={
           <AppBarIconButton
             key={1}
@@ -136,6 +162,30 @@ const Settings = () => {
                     configStore.updateConfig({ emoji: value });
                   }}
                 />
+              </BoxItem>
+              <BoxItem
+                title="Language"
+                subtitle="The language used for the interface."
+              >
+                <Select
+                  value={i18n.language}
+                  onValueChange={(key) => {
+                    i18n.changeLanguage(key);
+                  }}
+                >
+                  <SelectTrigger className="w-[180px] truncate">
+                    <SelectValue placeholder="Choose" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      {map(supportedLanguages, (lng, key) => (
+                        <SelectItem key={key} value={key}>
+                          {lng}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
               </BoxItem>
               <BoxItem
                 title="Send Key"
@@ -256,7 +306,7 @@ const Settings = () => {
                 </Select>
               </BoxItem>
               <BoxItem
-                title="Max Token"
+                title="Max Tokens"
                 subtitle="The maximum number of tokens to return."
               >
                 <Input
@@ -357,7 +407,7 @@ const Settings = () => {
               <BoxItem title="Reset" subtitle="Reset all settings to default.">
                 <Button
                   variant="destructive"
-                  className="bg-destructive/20 text-destructive hover:text-destructive-foreground dark:bg-destructive/40 dark:text-destructive-foreground"
+                  className="bg-destructive/20 text-destructive hover:text-destructive-foreground dark:bg-destructive/40 dark:text-destructive-foreground dark:hover:bg-destructive/80"
                   size="sm"
                   onClick={handleResetSettings}
                 >
@@ -370,7 +420,7 @@ const Settings = () => {
               >
                 <Button
                   variant="destructive"
-                  className="bg-destructive/20 text-destructive hover:text-destructive-foreground dark:bg-destructive/40 dark:text-destructive-foreground"
+                  className="bg-destructive/20 text-destructive hover:text-destructive-foreground dark:bg-destructive/40 dark:text-destructive-foreground dark:hover:bg-destructive/80"
                   size="sm"
                   onClick={handleDeleteAll}
                 >

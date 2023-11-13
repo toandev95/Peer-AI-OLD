@@ -3,7 +3,6 @@
 'use client';
 
 import { isEmpty, isNil } from 'lodash';
-import moment from 'moment';
 import type { ChangeEvent } from 'react';
 import { useState } from 'react';
 import type { IconType } from 'react-icons';
@@ -22,6 +21,7 @@ import remarkMath from 'remark-math';
 
 import { useCopyToClipboard } from '@/hooks';
 import { cn } from '@/lib/helpers';
+import moment from '@/lib/moment';
 import type { IAgentAction, IChatMessage } from '@/types';
 
 import { MemoizedReactMarkdown } from './Markdown';
@@ -140,11 +140,8 @@ const ChatBubble = ({
       case 'pdf':
         return '📃 PDF Reader';
 
-      case 'text-to-image':
-        return '🌄 Image Generation';
-
-      case 'image-to-text':
-        return '🌄 Image Captioning';
+      case 'dall-e':
+        return '🌄 DALL·E 3';
 
       case 'requests_get':
         return '🛜 Web Render (GET)';
