@@ -34,6 +34,10 @@ import { ChatPlugin } from '@/types';
 
 export const runtime: ServerRuntime = 'edge';
 
+const debug = (msg: any, ...params: any[]) =>
+  // eslint-disable-next-line no-console
+  console.debug(`[CHAT API]: ${msg}`, ...params);
+
 export async function POST(
   req: NextRequest,
 ): Promise<StreamingTextResponse | Response> {
@@ -44,31 +48,27 @@ export async function POST(
     );
   }
 
-  const ip = ipAddress(req) || req.headers.get('x-forwarded-for');
+  const realIp = ipAddress(req) || req.headers.get('x-forwarded-for');
+  debug('IP Address: %s', realIp);
 
-  // eslint-disable-next-line no-console
-  console.debug('IP Address:', ip);
-
-  if (isNil(ip)) {
+  if (isNil(realIp)) {
     return new Response(
       'Access is denied due to invalid IP address. Please check your IP address and try again.',
       { status: 401 },
     );
   }
 
-  const totalUses = await kv.get<number>(ip);
+  const totalUses = (await kv.get<number>(realIp)) || 0;
+  debug('Total Uses: %d', totalUses);
 
-  // eslint-disable-next-line no-console
-  console.debug('Total Uses:', totalUses);
-
-  if (!isNil(totalUses) && totalUses >= 100) {
+  if (totalUses >= 50) {
     return new Response(
-      'Access is denied due to too many requests. Please try again later.',
+      'You have exceeded the number of uses for the day. Please try again later',
       { status: 429 },
     );
   }
 
-  await kv.set(ip, (totalUses || 0) + 1, {
+  await kv.set(realIp, totalUses + 1, {
     ex: moment().endOf('day').diff(moment(), 'seconds'),
   });
 
