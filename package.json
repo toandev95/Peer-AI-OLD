@@ -36,6 +36,8 @@
     "@uidotdev/usehooks": "^2.4.0",
     "@vercel/analytics": "^1.1.1",
     "@vercel/blob": "^0.14.0",
+    "@vercel/edge": "^1.1.1",
+    "@vercel/kv": "^0.2.4",
     "ai": "^2.2.15",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",

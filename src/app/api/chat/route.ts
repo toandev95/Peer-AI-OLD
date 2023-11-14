@@ -1,4 +1,6 @@
 import type { PutBlobResult } from '@vercel/blob';
+import { ipAddress } from '@vercel/edge';
+import { kv } from '@vercel/kv';
 import { StreamingTextResponse } from 'ai';
 import { initializeAgentExecutorWithOptions } from 'langchain/agents';
 import { ChatOpenAI } from 'langchain/chat_models/openai';
@@ -41,6 +43,34 @@ export async function POST(
       { status: 401 },
     );
   }
+
+  const ip = ipAddress(req) || req.headers.get('x-forwarded-for');
+
+  // eslint-disable-next-line no-console
+  console.debug('IP Address:', ip);
+
+  if (isNil(ip)) {
+    return new Response(
+      'Access is denied due to invalid IP address. Please check your IP address and try again.',
+      { status: 401 },
+    );
+  }
+
+  const totalUses = await kv.get<number>(ip);
+
+  // eslint-disable-next-line no-console
+  console.debug('Total Uses:', totalUses);
+
+  if (!isNil(totalUses) && totalUses >= 100) {
+    return new Response(
+      'Access is denied due to too many requests. Please try again later.',
+      { status: 429 },
+    );
+  }
+
+  await kv.set(ip, (totalUses || 0) + 1, {
+    ex: moment().endOf('day').diff(moment(), 'seconds'),
+  });
 
   const body = await req.json();
 
@@ -183,7 +213,7 @@ export async function POST(
       The current time: ${moment().format('LLLL')}.`,
     },
     memory,
-    verbose: true,
+    verbose: false,
   });
 
   if (!streaming) {
