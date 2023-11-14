@@ -7,21 +7,24 @@ const Env = createEnv({
   server: {
     IDEX_ACCESS_CODES: z.string(),
     OPENAI_API_KEY: z.string().startsWith('sk-'),
-    OPENAI_API_URL: z.string().url(),
+    OPENAI_API_URL: z.string().url().optional(),
+    OPENAI_DALLE_ENABLED: z.enum(['true', 'false']).optional().default('false'),
     BLOB_READ_WRITE_TOKEN: z.string().startsWith('vercel_blob_').optional(),
-    REPLICATE_API_TOKEN: z.string().startsWith('r').optional(),
-    REPLICATE_TEXT_TO_IMAGE_ID: z.string().optional(),
-    REPLICATE_IMAGE_TO_TEXT_ID: z.string().optional(),
   },
-  client: {},
+  client: {
+    NEXT_PUBLIC_OPENAI_DALLE_ENABLED: z
+      .enum(['true', 'false'])
+      .optional()
+      .default('false'),
+  },
   runtimeEnv: {
     IDEX_ACCESS_CODES: process.env.IDEX_ACCESS_CODES,
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
     OPENAI_API_URL: process.env.OPENAI_API_URL,
+    OPENAI_DALLE_ENABLED: process.env.OPENAI_DALLE_ENABLED,
+    NEXT_PUBLIC_OPENAI_DALLE_ENABLED:
+      process.env.NEXT_PUBLIC_OPENAI_DALLE_ENABLED,
     BLOB_READ_WRITE_TOKEN: process.env.BLOB_READ_WRITE_TOKEN,
-    REPLICATE_API_TOKEN: process.env.REPLICATE_API_TOKEN,
-    REPLICATE_TEXT_TO_IMAGE_ID: process.env.REPLICATE_TEXT_TO_IMAGE_ID,
-    REPLICATE_IMAGE_TO_TEXT_ID: process.env.REPLICATE_IMAGE_TO_TEXT_ID,
   },
 });
 

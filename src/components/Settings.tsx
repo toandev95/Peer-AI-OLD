@@ -7,12 +7,15 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@radix-ui/react-popover';
-import { isEmpty, isNil, toNumber, valuesIn } from 'lodash';
+import { isEmpty, isNil, map, toNumber, valuesIn } from 'lodash';
 import { useRouter } from 'next/navigation';
 import { useTheme } from 'next-themes';
-import { type ReactNode, useState } from 'react';
+import type { ReactNode } from 'react';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { RiCloseLine } from 'react-icons/ri';
 
+import i18n, { supportedLanguages } from '@/i18n';
 import {
   useChatStore,
   useConfigStore,
@@ -22,8 +25,10 @@ import {
 import { SendKeys } from '@/types';
 
 import { AppBar, AppBarIconButton } from './AppBar';
+import { useConfirmDialog } from './Providers/ConfirmDialogProvider';
 import { Button } from './UI/Button';
 import { Card } from './UI/Card';
+import { ConfirmDialog } from './UI/ConfirmDialog';
 import { FadeIn } from './UI/FadeIn';
 import { DebouncedInput, Input } from './UI/Input';
 import {
@@ -92,6 +97,10 @@ const EmojiPickerButton = ({
 };
 
 const Settings = () => {
+  const { t } = useTranslation();
+
+  const confirm = useConfirmDialog(ConfirmDialog);
+
   const router = useRouter();
 
   const configStore = useConfigStore();
@@ -102,21 +111,37 @@ const Settings = () => {
   const updateConfig = useConfigStore((state) => state.updateConfig);
 
   const handleResetSettings = () => {
-    configStore.clear();
+    confirm({
+      message: t('settings.confirm.reset'),
+      onConfirmAction: () => {
+        configStore.clear();
+
+        localStorage.removeItem('i18nextLng');
+        i18n.changeLanguage();
+      },
+    });
   };
 
   const handleDeleteAll = () => {
-    configStore.clear();
-    chatStore.clear();
-    maskStore.clear();
-    promptStore.clear();
+    confirm({
+      message: t('settings.confirm.deleteAll'),
+      onConfirmAction: () => {
+        configStore.clear();
+        chatStore.clear();
+        maskStore.clear();
+        promptStore.clear();
+
+        localStorage.removeItem('i18nextLng');
+        i18n.changeLanguage();
+      },
+    });
   };
 
   return (
     <>
       <AppBar
-        title="Settings"
-        subtitle="All settings as per your preference."
+        title={t('settings.title')}
+        subtitle={t('settings.subtitle')}
         actions={
           <AppBarIconButton
             key={1}
@@ -129,7 +154,7 @@ const Settings = () => {
         <FadeIn>
           <Card>
             <div className="divide-y">
-              <BoxItem title="Avatar">
+              <BoxItem title={t('settings.avatar.title')}>
                 <EmojiPickerButton
                   value={configStore.emoji}
                   onChange={(value) => {
@@ -138,11 +163,35 @@ const Settings = () => {
                 />
               </BoxItem>
               <BoxItem
-                title="Send Key"
+                title={t('settings.language.title')}
+                subtitle={t('settings.language.subtitle')}
+              >
+                <Select
+                  value={i18n.language}
+                  onValueChange={(key) => {
+                    i18n.changeLanguage(key);
+                  }}
+                >
+                  <SelectTrigger className="w-[180px] truncate">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      {map(supportedLanguages, (lng, key) => (
+                        <SelectItem key={key} value={key}>
+                          {lng}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </BoxItem>
+              <BoxItem
+                title={t('settings.sendKey.title')}
                 subtitle={
                   configStore.sendKey === SendKeys.Enter
-                    ? 'Press Enter to send, hold Shift + Enter to go to the next line.'
-                    : 'Press Ctrl (or Command) + Enter to send.'
+                    ? t('settings.sendKey.subtitle1')
+                    : t('settings.sendKey.subtitle2')
                 }
               >
                 <Select
@@ -152,7 +201,7 @@ const Settings = () => {
                   }}
                 >
                   <SelectTrigger className="w-[180px] truncate">
-                    <SelectValue placeholder="Choose" />
+                    <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
@@ -166,8 +215,8 @@ const Settings = () => {
                 </Select>
               </BoxItem>
               <BoxItem
-                title="Send Preview Bubble"
-                subtitle="Allow previewing the message that will be sent while composing."
+                title={t('settings.sendPreviewBubble.title')}
+                subtitle={t('settings.sendPreviewBubble.subtitle')}
               >
                 <Switch
                   checked={configStore.sendPreviewBubble}
@@ -215,8 +264,8 @@ const Settings = () => {
                 />
               </BoxItem>
               <BoxItem
-                title="Access Code"
-                subtitle="The access code is authorized to access OpenAI."
+                title={t('settings.accessCode.title')}
+                subtitle={t('settings.accessCode.subtitle')}
               >
                 <DebouncedInput
                   type="password"
@@ -233,7 +282,10 @@ const Settings = () => {
                   }}
                 />
               </BoxItem>
-              <BoxItem title="Model">
+              <BoxItem
+                title={t('settings.model.title')}
+                subtitle={t('settings.model.subtitle')}
+              >
                 <Select
                   value={configStore.defaultModel}
                   disabled={isEmpty(configStore.models)}
@@ -242,7 +294,9 @@ const Settings = () => {
                   }}
                 >
                   <SelectTrigger className="w-[180px] truncate">
-                    <SelectValue placeholder="Choose a model" />
+                    <SelectValue
+                      placeholder={t('settings.model.placeholder')}
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
@@ -256,7 +310,7 @@ const Settings = () => {
                 </Select>
               </BoxItem>
               <BoxItem
-                title="Max Token"
+                title="Max Tokens"
                 subtitle="The maximum number of tokens to return."
               >
                 <Input
@@ -333,8 +387,8 @@ const Settings = () => {
           <Card>
             <div className="divide-y">
               <BoxItem
-                title="Compression Threshold"
-                subtitle="When this threshold is reached, the conversation content will be summarized to reduce token consumption."
+                title={t('settings.messageCompressionThreshold.title')}
+                subtitle={t('settings.messageCompressionThreshold.subtitle')}
               >
                 <Input
                   type="number"
@@ -354,27 +408,30 @@ const Settings = () => {
         <FadeIn>
           <Card>
             <div className="divide-y">
-              <BoxItem title="Reset" subtitle="Reset all settings to default.">
-                <Button
-                  variant="destructive"
-                  className="bg-destructive/20 text-destructive hover:text-destructive-foreground dark:bg-destructive/40 dark:text-destructive-foreground"
-                  size="sm"
-                  onClick={handleResetSettings}
-                >
-                  Reset
-                </Button>
-              </BoxItem>
               <BoxItem
-                title="Delete All"
-                subtitle="Delete all conversations and settings."
+                title={t('settings.reset.title')}
+                subtitle={t('settings.reset.subtitle')}
               >
                 <Button
                   variant="destructive"
-                  className="bg-destructive/20 text-destructive hover:text-destructive-foreground dark:bg-destructive/40 dark:text-destructive-foreground"
+                  className="bg-destructive/20 text-destructive hover:text-destructive-foreground dark:bg-destructive/40 dark:text-destructive-foreground dark:hover:bg-destructive/80"
+                  size="sm"
+                  onClick={handleResetSettings}
+                >
+                  {t('settings.reset.button')}
+                </Button>
+              </BoxItem>
+              <BoxItem
+                title={t('settings.deleteAll.title')}
+                subtitle={t('settings.deleteAll.subtitle')}
+              >
+                <Button
+                  variant="destructive"
+                  className="bg-destructive/20 text-destructive hover:text-destructive-foreground dark:bg-destructive/40 dark:text-destructive-foreground dark:hover:bg-destructive/80"
                   size="sm"
                   onClick={handleDeleteAll}
                 >
-                  Delete
+                  {t('settings.deleteAll.button')}
                 </Button>
               </BoxItem>
             </div>

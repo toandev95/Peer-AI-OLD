@@ -38,5 +38,4 @@ export default bundleAnalyzer({
       transform: 'react-icons/{{member}}',
     },
   },
-  experimental: { webpackBuildWorker: true },
 });

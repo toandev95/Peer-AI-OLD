@@ -1,0 +1,154 @@
+{
+  "confirm": {
+    "title": "Confirm",
+    "actions": {
+      "ok": "OK",
+      "cancel": "Cancel"
+    }
+  },
+  "sidebar": {
+    "slogan": "Customize your own AI assistant.",
+    "totalMessages": "{{count}} messages",
+    "newChat": "New Chat",
+    "confirm": {
+      "removeChat": "Are you sure you want to remove this chat?"
+    }
+  },
+  "chatStart": {
+    "title": "Choose a mask",
+    "subtitle": "Chat with the soul behind the mask",
+    "findMore": "Find More",
+    "justStart": "Just Start",
+    "newChat": "New Chat"
+  },
+  "masks": {
+    "title": "Masks",
+    "subtitle": "All available masks",
+    "totalPrompts": "{{count}} prompts",
+    "chat": "Chat",
+    "newChat": "New Chat"
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "All settings as per your preference",
+    "avatar": {
+      "title": "Avatar"
+    },
+    "language": {
+      "title": "Language",
+      "subtitle": "The language used for the interface."
+    },
+    "sendKey": {
+      "title": "Send Key",
+      "subtitle1": "Press Enter to send, hold Shift + Enter to go to the next line.",
+      "subtitle2": "Press Ctrl (or Command) + Enter to send."
+    },
+    "sendPreviewBubble": {
+      "title": "Send Preview Bubble",
+      "subtitle": "Allow previewing the message that will be sent while composing."
+    },
+    "accessCode": {
+      "title": "Access Code",
+      "subtitle": "The access code is authorized to access OpenAI."
+    },
+    "model": {
+      "title": "Model",
+      "subtitle": "Default model for new chats.",
+      "placeholder": "Select a model"
+    },
+    "messageCompressionThreshold": {
+      "title": "Compression Threshold",
+      "subtitle": "When this threshold is reached, the conversation content will be summarized to reduce token consumption."
+    },
+    "reset": {
+      "title": "Reset",
+      "subtitle": "Reset all settings to default.",
+      "button": "Reset"
+    },
+    "deleteAll": {
+      "title": "Delete All",
+      "subtitle": "Delete all conversations and settings.",
+      "button": "Delete"
+    },
+    "confirm": {
+      "reset": "Are you sure you want to reset all settings to default?",
+      "deleteAll": "Are you sure you want to delete all conversations and settings?"
+    }
+  },
+  "chatWindow": {
+    "totalMessages": "{{count}} messages",
+    "emptyChat": "How can I assist you today?",
+    "editTitle": {
+      "title": "Rename Conversation",
+      "subtitle": "Give this conversation a new name.",
+      "placeholder": "Conversation name",
+      "save": "Save"
+    },
+    "toolbar": {
+      "prompts": "Prompts",
+      "plugins": "Plugins",
+      "settings": "Settings",
+      "scrollToBottom": "To Bottom",
+      "clearHistory": "Clear History"
+    },
+    "toolbarPlugins": {
+      "search": {
+        "title": "Search",
+        "subtitle": "Search the web for information."
+      },
+      "wikipedia": {
+        "title": "Wikipedia",
+        "subtitle": "Search Wikipedia for information."
+      },
+      "webReader": {
+        "title": "Web Reader",
+        "subtitle": "Read the content of a website."
+      },
+      "pdfReader": {
+        "title": "PDF Reader",
+        "subtitle": "Read the content of a PDF file from one or more public URLs."
+      },
+      "dalle": {
+        "title": "DALL·E 3",
+        "subtitle": "Generate images from text prompts."
+      }
+    },
+    "settings": {
+      "title": "Settings",
+      "subtitle": "Customize the settings for this chat.",
+      "model": {
+        "title": "Model",
+        "placeholder": "Select a model"
+      },
+      "maxTokens": {
+        "title": "Max Tokens",
+        "tooltip": "The maximum number of tokens to return."
+      },
+      "temperature": {
+        "title": "Temperature",
+        "tooltip": "Controls the randomness of the returned text; lower is less random."
+      },
+      "topP": {
+        "title": "Top P",
+        "tooltip": "The cumulative probability of the most likely tokens to return."
+      },
+      "frequencyPenalty": {
+        "title": "Frequency Penalty",
+        "tooltip": "How much to penalize tokens based on their frequency in the text so far."
+      },
+      "presencePenalty": {
+        "title": "Presence Penalty",
+        "tooltip": "How much to penalize tokens based on if they have appeared in the text so far."
+      }
+    },
+    "message": {
+      "placeholder": "Type a message...",
+      "stopGenerating": "Stop generating",
+      "send": "Send"
+    },
+    "confirm": {
+      "clearHistory": "Are you sure you want to clear the chat history?",
+      "removeFile": "Are you sure you want to remove this file?"
+    }
+  }
+}

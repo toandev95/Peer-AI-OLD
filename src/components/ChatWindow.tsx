@@ -5,6 +5,7 @@ import _, {
   cloneDeep,
   filter,
   findIndex,
+  head,
   includes,
   isEmpty,
   isEqual,
@@ -13,18 +14,22 @@ import _, {
   lastIndexOf,
   map,
   pick,
+  startsWith,
   takeWhile,
 } from 'lodash';
 import moment from 'moment';
 import Link from 'next/link';
 import type { ChangeEvent } from 'react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
+  RiArrowDownLine,
   RiCloseCircleLine,
   RiFullscreenExitLine,
   RiFullscreenLine,
   RiLoader3Line,
   RiMagicLine,
+  RiOpenaiFill,
   RiPencilLine,
   RiPlug2Line,
   RiSendPlane2Line,
@@ -42,7 +47,7 @@ import {
   useFileUpload,
   useToast,
 } from '@/hooks';
-import { emptyToUndefined, truncate, uuid } from '@/lib/helpers';
+import { emptyToUndefined, isTrue, truncate, uuid } from '@/lib/helpers';
 import { useChatStore, useConfigStore, usePromptStore } from '@/stores';
 import type { IChat, IChatMessage, IPrompt } from '@/types';
 import { ChatPlugin } from '@/types';
@@ -54,7 +59,9 @@ import {
   ToolbarPluginItem,
   ToolbarSettingItem,
 } from './ChatToolbar';
+import { useConfirmDialog } from './Providers/ConfirmDialogProvider';
 import { Button } from './UI/Button';
+import { ConfirmDialog } from './UI/ConfirmDialog';
 import {
   Dialog,
   DialogContent,
@@ -76,13 +83,15 @@ import {
 } from './UI/Select';
 import { SliderInput } from './UI/Slider';
 
-const EditChatNameButton = ({
+const ChatEditTitleButton = ({
   value,
   onChange,
 }: {
   value: string;
   onChange: (newTitle: string) => void;
 }) => {
+  const { t } = useTranslation();
+
   const [open, setOpen] = useState<boolean>(false);
   const [newTitle, setNewTitle] = useState<string>(value);
 
@@ -102,16 +111,16 @@ const EditChatNameButton = ({
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Rename Conversation</DialogTitle>
+          <DialogTitle>{t('chatWindow.editTitle.title')}</DialogTitle>
           <DialogDescription>
-            Give this conversation a new name.
+            {t('chatWindow.editTitle.subtitle')}
           </DialogDescription>
         </DialogHeader>
-        <form className="flex flex-col items-end gap-4" onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="flex flex-col items-end gap-4">
           <Input
             type="text"
             defaultValue={value}
-            placeholder="Conversation name"
+            placeholder={t('chatWindow.editTitle.placeholder')}
             onChange={(ev) => setNewTitle(ev.currentTarget.value.trim())}
           />
           <Button
@@ -119,7 +128,7 @@ const EditChatNameButton = ({
             disabled={isEmpty(newTitle)}
             onClick={() => onChange(newTitle)}
           >
-            Save
+            {t('chatWindow.editTitle.save')}
           </Button>
         </form>
       </DialogContent>
@@ -128,6 +137,10 @@ const EditChatNameButton = ({
 };
 
 const ChatWindow = ({ id }: { id: IChat['id'] }) => {
+  const { t } = useTranslation();
+
+  const confirm = useConfirmDialog(ConfirmDialog);
+
   const { toast } = useToast();
   const breakpoint = useBreakpoint();
 
@@ -150,7 +163,8 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
   const [isShowToolbarPrompt, setIsShowToolbarPrompt] = useToggle(false);
 
   const { formRef, onKeyDown } = useEnterSubmit(configStore.sendKey);
-  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const isDallEEnabled = isTrue(process.env.NEXT_PUBLIC_OPENAI_DALLE_ENABLED);
 
   const {
     ref: fileRef,
@@ -335,15 +349,18 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
     [currentChat.messages],
   );
 
-  const filledMessages = useMemo(() => {
-    if (!isNil(scrollRef.current)) {
-      scrollRef.current.scrollTo(0, 200);
-    }
+  const filledMessages = useMemo(
+    () =>
+      _(cleanedMessages)
+        .slice(0, endIndex + configStore.paginationSize)
+        .value(),
+    [cleanedMessages, configStore.paginationSize, endIndex],
+  );
 
-    return _(cleanedMessages)
-      .slice(0, endIndex + configStore.paginationSize)
-      .value();
-  }, [cleanedMessages, configStore.paginationSize, endIndex]);
+  const { scrollRef, isBottom, scrollToBottom } = useChatScrollAnchor([
+    cleanedMessages,
+    input,
+  ]);
 
   useEffect(() => {
     if (!isNil(currentChat.settings.model) || isNil(configStore.defaultModel)) {
@@ -362,8 +379,6 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
     syncMessages(currentChat.id, messages);
   }, [currentChat.id, messages, syncMessages]);
 
-  useChatScrollAnchor([cleanedMessages, input], scrollRef);
-
   const isShowPrompt = useMemo(() => {
     if (isEmpty(promptStore.prompts)) {
       return false;
@@ -373,7 +388,10 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
   }, [input, isShowToolbarPrompt, promptStore.prompts]);
 
   const isEnableChatConfig = useMemo(
-    () => isEmpty(cleanedMessages),
+    () =>
+      _(cleanedMessages)
+        .filter((message) => message.role !== 'system')
+        .isEmpty(),
     [cleanedMessages],
   );
 
@@ -427,11 +445,16 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
   };
 
   const handleClearHistory = () => {
-    const newMessages = filter(
-      messages,
-      (message) => message.role === 'system',
-    );
-    setMessages(newMessages);
+    confirm({
+      message: t('chatWindow.confirm.clearHistory'),
+      onConfirmAction: () => {
+        const newMessages = filter(
+          messages,
+          (message) => message.role === 'system',
+        );
+        setMessages(newMessages);
+      },
+    });
   };
 
   const handleChangeMessage = (message: IChatMessage, newContent: string) => {
@@ -479,16 +502,16 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
   };
 
   const handleRemoveFile = (file: PutBlobResult) => {
-    fetch('/api/upload', {
-      method: 'DELETE',
-      body: JSON.stringify({ url: file.url }),
+    confirm({
+      message: t('chatWindow.confirm.removeFile'),
+      onConfirmAction: () => {
+        const newAttachments = filter(
+          currentChat.attachments,
+          (attachment) => !isEqual(attachment, file),
+        );
+        updateChatAttachments(currentChat.id, newAttachments);
+      },
     });
-
-    const newAttachments = filter(
-      currentChat.attachments,
-      (attachment) => !isEqual(attachment, file),
-    );
-    updateChatAttachments(currentChat.id, newAttachments);
   };
 
   return (
@@ -499,10 +522,12 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
     >
       <AppBar
         title={currentChat.title}
-        subtitle={`${cleanedMessages.length} messages`}
+        subtitle={t('chatWindow.totalMessages', {
+          count: cleanedMessages.length,
+        })}
         actions={
           <>
-            <EditChatNameButton
+            <ChatEditTitleButton
               key={1}
               value={currentChat.title}
               onChange={(newTitle) => updateChatTitle(currentChat.id, newTitle)}
@@ -539,7 +564,7 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
               }}
             />
           )}
-        {error && (
+        {!isNil(error) && (
           <ChatBubble
             emoji={getEmojiFromRole('assistant')}
             message={{
@@ -558,36 +583,45 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
             isTyping={
               isLoading &&
               message.role === 'assistant' &&
-              last(filledMessages)!.id === message.id
+              head(filledMessages)!.id === message.id
             }
             onChange={(newContent) => handleChangeMessage(message, newContent)}
             onRegenerate={() => handleRegenerateMessage(message)}
             onRemove={() => handleRemoveMessage(message)}
           />
         ))}
-      </div>
-      <div className="sticky bottom-0 flex flex-col gap-2 border-t bg-background/60 px-4 py-3 backdrop-blur">
-        {!isNil(currentChat.attachments) && (
-          <div className="flex gap-2 overflow-x-auto">
-            {currentChat.attachments.map((file, i) => (
-              <div
-                key={`${file.pathname}_${i.toString()}`}
-                className="flex  items-center gap-2 rounded-lg border px-3 py-2 pr-2"
-              >
-                <Link
-                  href={file.url}
-                  className="max-w-[250px] select-text truncate"
-                  target="_blank"
-                >
-                  {truncate(file.pathname, 40)}
-                </Link>
-                <button type="button" onClick={() => handleRemoveFile(file)}>
-                  <RiCloseCircleLine size={16} />
-                </button>
-              </div>
-            ))}
+        {isEmpty(filledMessages) && isEmpty(input) && isNil(error) && (
+          <div className="flex h-full w-full flex-col items-center justify-center gap-2">
+            <RiOpenaiFill size={60} className="text-muted-foreground/60" />
+            <div className="text-lg font-medium text-muted-foreground/60">
+              {t('chatWindow.emptyChat')}
+            </div>
           </div>
         )}
+      </div>
+      <div className="sticky bottom-0 flex flex-col gap-2 border-t bg-background/60 px-4 py-3 backdrop-blur">
+        {!isNil(currentChat.attachments) &&
+          !isEmpty(currentChat.attachments) && (
+            <div className="flex gap-2 overflow-x-auto">
+              {currentChat.attachments.map((file, i) => (
+                <div
+                  key={`${file.pathname}_${i.toString()}`}
+                  className="flex  items-center gap-2 rounded-lg border px-3 py-2 pr-2"
+                >
+                  <Link
+                    href={file.url}
+                    className="max-w-[250px] select-text truncate"
+                    target="_blank"
+                  >
+                    {truncate(file.pathname, 40)}
+                  </Link>
+                  <button type="button" onClick={() => handleRemoveFile(file)}>
+                    <RiCloseCircleLine size={16} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         {isShowPrompt && (
           <FadeIn className="flex max-h-[20vh] flex-col divide-y overflow-y-auto overscroll-contain rounded-lg border bg-background text-xs scrollbar scrollbar-thumb-accent-foreground/30 scrollbar-thumb-rounded-full scrollbar-w-[3px]">
             {promptStore.prompts.map((prompt) => (
@@ -605,7 +639,7 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
         <div className="flex gap-1.5 overflow-x-hidden">
           <ToolbarIconButton
             IconComponent={RiMagicLine}
-            label="Prompts"
+            label={t('chatWindow.toolbar.prompts')}
             onClick={() => setIsShowToolbarPrompt()}
           />
           <Popover>
@@ -613,46 +647,49 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
               <div className="z-10">
                 <ToolbarIconButton
                   IconComponent={RiPlug2Line}
-                  label="Plugins"
+                  label={t('chatWindow.toolbar.plugins')}
                 />
               </div>
             </PopoverTrigger>
             <PopoverContent align="start" className="divide-y p-0">
               <ToolbarPluginItem
-                title="Search Engine"
-                subtitle="Search the web for information."
+                title={t('chatWindow.toolbarPlugins.search.title')}
+                subtitle={t('chatWindow.toolbarPlugins.search.subtitle')}
                 values={currentChat.settings.plugins}
                 plugin={ChatPlugin.Search}
                 onCheckedChange={handlePluginChange}
               />
               <ToolbarPluginItem
-                title="Wikipedia"
-                subtitle="Search Wikipedia for information."
+                title={t('chatWindow.toolbarPlugins.wikipedia.title')}
+                subtitle={t('chatWindow.toolbarPlugins.wikipedia.subtitle')}
                 values={currentChat.settings.plugins}
                 plugin={ChatPlugin.Wikipedia}
                 onCheckedChange={handlePluginChange}
               />
               <ToolbarPluginItem
-                title="Web Reader"
-                subtitle="Read the content of a website."
+                title={t('chatWindow.toolbarPlugins.webReader.title')}
+                subtitle={t('chatWindow.toolbarPlugins.webReader.subtitle')}
                 values={currentChat.settings.plugins}
                 plugin={ChatPlugin.WebReader}
                 onCheckedChange={handlePluginChange}
               />
               <ToolbarPluginItem
-                title="PDF Reader"
-                subtitle="Read the content of a PDF file from one or more public URLs"
+                title={t('chatWindow.toolbarPlugins.pdfReader.title')}
+                subtitle={t('chatWindow.toolbarPlugins.pdfReader.subtitle')}
                 values={currentChat.settings.plugins}
                 plugin={ChatPlugin.PDFReader}
                 onCheckedChange={handlePluginChange}
               />
-              <ToolbarPluginItem
-                title="Image Generation"
-                subtitle="Generate images from text prompts."
-                values={currentChat.settings.plugins}
-                plugin={ChatPlugin.ImageGenerator}
-                onCheckedChange={handlePluginChange}
-              />
+              {isDallEEnabled && (
+                <ToolbarPluginItem
+                  title={t('chatWindow.toolbarPlugins.dalle.title')}
+                  subtitle={t('chatWindow.toolbarPlugins.dalle.subtitle')}
+                  values={currentChat.settings.plugins}
+                  plugin={ChatPlugin.ImageGenerator}
+                  onCheckedChange={handlePluginChange}
+                  disabled={!startsWith(currentChat.settings.model, 'gpt-4')}
+                />
+              )}
             </PopoverContent>
           </Popover>
           <Dialog>
@@ -660,30 +697,40 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
               <div className="z-10">
                 <ToolbarIconButton
                   IconComponent={RiSettings4Line}
-                  label="Settings"
+                  label={t('chatWindow.toolbar.settings')}
                 />
               </div>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Settings</DialogTitle>
+                <DialogTitle>{t('chatWindow.settings.title')}</DialogTitle>
                 <DialogDescription>
-                  Customize the settings for this chat.
+                  {t('chatWindow.settings.subtitle')}
                 </DialogDescription>
               </DialogHeader>
               <div className="flex flex-col gap-4">
-                <ToolbarSettingItem title="Model">
+                <ToolbarSettingItem
+                  title={t('chatWindow.settings.model.title')}
+                >
                   {isEnableChatConfig ? (
                     <Select
                       dir="ltr"
-                      value={currentChat.settings.model}
+                      value={
+                        !isEmpty(configStore.models)
+                          ? currentChat.settings.model
+                          : undefined
+                      }
                       disabled={isEmpty(configStore.models)}
                       onValueChange={(model) => {
                         updateChatSettings(currentChat.id, { model });
                       }}
                     >
                       <SelectTrigger className="w-[180px] truncate">
-                        <SelectValue placeholder="Choose a model" />
+                        <SelectValue
+                          placeholder={t(
+                            'chatWindow.settings.model.placeholder',
+                          )}
+                        />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
@@ -704,12 +751,11 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
                   )}
                 </ToolbarSettingItem>
                 <ToolbarSettingItem
-                  title="Max Token"
-                  tooltip="The maximum number of tokens to return."
+                  title={t('chatWindow.settings.maxTokens.title')}
+                  tooltip={t('chatWindow.settings.maxTokens.tooltip')}
                 >
                   <Input
                     type="number"
-                    placeholder="500"
                     className="w-[120px] text-center"
                     value={currentChat.settings.maxTokens}
                     min={500}
@@ -724,8 +770,8 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
                   />
                 </ToolbarSettingItem>
                 <ToolbarSettingItem
-                  title="Temperature"
-                  tooltip="Controls the randomness of the returned text; lower is less random."
+                  title={t('chatWindow.settings.temperature.title')}
+                  tooltip={t('chatWindow.settings.temperature.tooltip')}
                 >
                   <SliderInput
                     value={[currentChat.settings.temperature]}
@@ -741,8 +787,8 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
                   />
                 </ToolbarSettingItem>
                 <ToolbarSettingItem
-                  title="Top P"
-                  tooltip="The cumulative probability of the most likely tokens to return."
+                  title={t('chatWindow.settings.topP.title')}
+                  tooltip={t('chatWindow.settings.topP.tooltip')}
                 >
                   <SliderInput
                     value={[currentChat.settings.topP]}
@@ -758,8 +804,8 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
                   />
                 </ToolbarSettingItem>
                 <ToolbarSettingItem
-                  title="Frequency Penalty"
-                  tooltip="How much to penalize tokens based on their frequency in the text so far."
+                  title={t('chatWindow.settings.frequencyPenalty.title')}
+                  tooltip={t('chatWindow.settings.frequencyPenalty.tooltip')}
                 >
                   <SliderInput
                     value={[currentChat.settings.frequencyPenalty]}
@@ -775,8 +821,8 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
                   />
                 </ToolbarSettingItem>
                 <ToolbarSettingItem
-                  title="Presence Penalty"
-                  tooltip="How much to penalize tokens based on if they have appeared in the text so far."
+                  title={t('chatWindow.settings.presencePenalty.title')}
+                  tooltip={t('chatWindow.settings.presencePenalty.tooltip')}
                 >
                   <SliderInput
                     value={[currentChat.settings.presencePenalty]}
@@ -794,17 +840,27 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
               </div>
             </DialogContent>
           </Dialog>
-          <ToolbarIconButton
-            IconComponent={VscClearAll}
-            label="Clear history"
-            className="ml-auto"
-            onClick={handleClearHistory}
-          />
+          <div className="ml-auto flex gap-1.5">
+            {!isBottom && (
+              <FadeIn initial={{ opacity: 0, x: 0, y: 0 }}>
+                <ToolbarIconButton
+                  IconComponent={RiArrowDownLine}
+                  label={t('chatWindow.toolbar.scrollToBottom')}
+                  onClick={() => scrollToBottom()}
+                />
+              </FadeIn>
+            )}
+            <ToolbarIconButton
+              IconComponent={VscClearAll}
+              label={t('chatWindow.toolbar.clearHistory')}
+              onClick={handleClearHistory}
+            />
+          </div>
         </div>
         <form ref={formRef} className="relative" onSubmit={handleSubmit}>
           <TextareaAutosize
             value={input}
-            placeholder="Type a message..."
+            placeholder={t('chatWindow.message.placeholder')}
             className="block w-full resize-none overscroll-contain rounded-lg border bg-background px-3 py-2.5 pr-[140px] outline-none scrollbar scrollbar-thumb-accent-foreground/30 scrollbar-thumb-rounded-full scrollbar-w-[3px] placeholder:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
             spellCheck={false}
             minRows={4}
@@ -815,30 +871,34 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
           />
           <div className="absolute bottom-2 right-2 flex gap-2">
             {includes(currentChat.settings.plugins, ChatPlugin.PDFReader) && (
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                onClick={handleFilePicker}
-                disabled={
-                  isUploading || (currentChat.attachments || []).length >= 3
-                }
-              >
-                {isUploading ? (
-                  <RiLoader3Line size={18} className="animate-spin" />
-                ) : (
-                  <VscFilePdf size={18} />
-                )}
-              </Button>
+              <FadeIn initial={{ opacity: 0, x: 0, y: 0 }}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={handleFilePicker}
+                  disabled={
+                    isUploading || (currentChat.attachments || []).length >= 3
+                  }
+                >
+                  {isUploading ? (
+                    <RiLoader3Line size={18} className="animate-spin" />
+                  ) : (
+                    <VscFilePdf size={18} />
+                  )}
+                </Button>
+              </FadeIn>
             )}
             {isLoading ? (
               <Button type="submit" variant="outline" onClick={() => stop()}>
                 <RiLoader3Line size={18} className="animate-spin" />
-                <span className="ml-2">Stop generating</span>
+                <span className="ml-2">
+                  {t('chatWindow.message.stopGenerating')}
+                </span>
               </Button>
             ) : (
               <Button type="submit">
-                <span className="mr-2">Send</span>
+                <span className="mr-2">{t('chatWindow.message.send')}</span>
                 <RiSendPlane2Line size={14} />
               </Button>
             )}

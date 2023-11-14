@@ -1,0 +1,134 @@
+{
+  "confirm": {
+    "title": "Xác Nhận",
+    "actions": {
+      "ok": "Đồng Ý",
+      "cancel": "Hủy"
+    }
+  },
+  "sidebar": {
+    "slogan": "Tùy chỉnh trợ lý AI của riêng bạn.",
+    "totalMessages": "{{count}} tin nhắn",
+    "newChat": "Chat Mới",
+    "confirm": {
+      "removeChat": "Bạn có chắc chắn muốn xoá cuộc trò chuyện này?"
+    }
+  },
+  "chatStart": {
+    "title": "Chọn tính cách",
+    "subtitle": "Trò chuyện thú vị với các tính cách khác nhau.",
+    "findMore": "Tìm Thêm",
+    "justStart": "Bắt Đầu",
+    "newChat": "Chat Mới"
+  },
+  "masks": {
+    "title": "Tính Cách",
+    "subtitle": "Tất cả tính cách có sẵn",
+    "totalPrompts": "{{count}} lời nhắc",
+    "chat": "Trò Chuyện",
+    "newChat": "Chat Mới"
+  },
+  "settings": {
+    "title": "Cài Đặt",
+    "subtitle": "Tất cả cài đặt theo sở thích của bạn",
+    "avatar": {
+      "title": "Hình Đại Diện"
+    },
+    "language": {
+      "title": "Ngôn Ngữ",
+      "subtitle": "Ngôn ngữ sử dụng cho giao diện."
+    },
+    "sendKey": {
+      "title": "Phím Gửi",
+      "subtitle1": "Nhấn Enter để gửi, giữ Shift + Enter để chuyển sang dòng tiếp theo.",
+      "subtitle2": "Nhấn Ctrl (hoặc Command) + Enter để gửi."
+    },
+    "sendPreviewBubble": {
+      "title": "Xem Trước Tin Nhắn",
+      "subtitle": "Cho phép xem trước tin nhắn sẽ được gửi khi soạn."
+    },
+    "accessCode": {
+      "title": "Mã Truy Cập",
+      "subtitle": "Mã truy cập được ủy quyền để truy cập OpenAI."
+    },
+    "model": {
+      "title": "Mô Hình",
+      "subtitle": "Mô hình mặc định cho các cuộc trò chuyện mới.",
+      "placeholder": "Chọn một mô hình"
+    },
+    "messageCompressionThreshold": {
+      "title": "Ngưỡng Nén Tin Nhắn",
+      "subtitle": "Khi đạt đến ngưỡng này, nội dung cuộc trò chuyện sẽ được tóm tắt để giảm tiêu thụ token."
+    },
+    "reset": {
+      "title": "Cài Lại",
+      "subtitle": "Cài lại tất cả cài đặt về mặc định.",
+      "button": "Cài Lại"
+    },
+    "deleteAll": {
+      "title": "Xóa Tất Cả",
+      "subtitle": "Xóa tất cả cuộc trò chuyện và cài đặt.",
+      "button": "Xóa"
+    },
+    "confirm": {
+      "reset": "Bạn có chắc chắn muốn cài lại tất cả cài đặt về mặc định?",
+      "deleteAll": "Bạn có chắc chắn muốn xóa tất cả cuộc trò chuyện và cài đặt?"
+    }
+  },
+  "chatWindow": {
+    "totalMessages": "{{count}} tin nhắn",
+    "emptyChat": "Tôi có thể giúp gì cho bạn hôm nay?",
+    "editTitle": {
+      "title": "Đổi Tên",
+      "subtitle": "Đặt tên mới cho cuộc trò chuyện này.",
+      "placeholder": "Tên cuộc trò chuyện",
+      "save": "Lưu"
+    },
+    "toolbar": {
+      "prompts": "Lời Nhắc",
+      "plugins": "Plugin",
+      "settings": "Cài Đặt",
+      "scrollToBottom": "Cuộn Xuống",
+      "clearHistory": "Xóa Lịch Sử"
+    },
+    "toolbarPlugins": {
+      "search": {
+        "title": "Tìm Kiếm",
+        "subtitle": "Tìm kiếm thông tin trên web."
+      },
+      "wikipedia": {
+        "title": "Wikipedia",
+        "subtitle": "Tìm kiếm thông tin trên Wikipedia."
+      },
+      "webReader": {
+        "title": "Đọc Web",
+        "subtitle": "Đọc nội dung của một trang web."
+      },
+      "pdfReader": {
+        "title": "Đọc PDF",
+        "subtitle": "Đọc nội dung của một tệp PDF từ một hoặc nhiều URL."
+      },
+      "dalle": {
+        "title": "DALL·E 3",
+        "subtitle": "Tạo hình ảnh từ lời nhắc văn bản."
+      }
+    },
+    "settings": {
+      "title": "Cài Đặt",
+      "subtitle": "Tùy chỉnh cài đặt cho cuộc trò chuyện này.",
+      "model": {
+        "title": "Mô Hình",
+        "placeholder": "Chọn một mô hình"
+      }
+    },
+    "message": {
+      "placeholder": "Nhập tin nhắn...",
+      "stopGenerating": "Dừng tạo",
+      "send": "Gửi"
+    },
+    "confirm": {
+      "clearHistory": "Bạn có chắc chắn muốn xóa lịch sử trò chuyện?",
+      "removeFile": "Bạn có chắc chắn muốn xóa tệp này?"
+    }
+  }
+}

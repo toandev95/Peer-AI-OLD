@@ -17,16 +17,16 @@ import {
   WikipediaQueryRun,
 } from 'langchain/tools';
 import { Calculator } from 'langchain/tools/calculator';
-import _, { filter, includes, isEmpty, isNil, last } from 'lodash';
+import _, { filter, includes, isEmpty, isNil, last, startsWith } from 'lodash';
 import moment from 'moment';
 import type { ServerRuntime } from 'next';
-import { type NextRequest, NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 
 import { LangChainStream } from '@/langchain';
 import { DuckDuckGo, PDFReader } from '@/langchain/tools';
-import { ImageToText } from '@/langchain/tools/image-to-text';
-import { TextToImage } from '@/langchain/tools/text-to-image';
-import { auth } from '@/lib/helpers';
+import { DallE } from '@/langchain/tools/dall-e';
+import { auth, isTrue } from '@/lib/helpers';
 import type { IChatMessage } from '@/types';
 import { ChatPlugin } from '@/types';
 
@@ -161,9 +161,17 @@ export async function POST(
     tools.push(new PDFReader(embeddings));
   }
 
-  if (includes(plugins, ChatPlugin.ImageGenerator)) {
-    tools.push(new TextToImage());
-    tools.push(new ImageToText());
+  if (
+    isTrue(process.env.OPENAI_DALLE_ENABLED) &&
+    includes(plugins, ChatPlugin.ImageGenerator) &&
+    startsWith(model, 'gpt-4') // Only support GPT-4 models
+  ) {
+    tools.push(
+      new DallE({
+        apiKey: llm.openAIApiKey,
+        baseUrl: openAIEndpoint || process.env.OPENAI_API_URL,
+      }),
+    );
   }
 
   const executor = await initializeAgentExecutorWithOptions(tools, llm, {

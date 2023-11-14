@@ -13,8 +13,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTheme } from 'next-themes';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
-  RiAddCircleLine,
+  RiChat3Line,
   RiCloseCircleLine,
   RiLightbulbFlashLine,
   RiLightbulbLine,
@@ -26,7 +27,9 @@ import { cn } from '@/lib/helpers';
 import { useChatStore, useConfigStore } from '@/stores';
 import type { IChat } from '@/types';
 
+import { useConfirmDialog } from './Providers/ConfirmDialogProvider';
 import { Button } from './UI/Button';
+import { ConfirmDialog } from './UI/ConfirmDialog';
 
 const MenuItem = ({
   chat,
@@ -39,6 +42,8 @@ const MenuItem = ({
   onItemClick: () => void;
   onRemoveClick: () => void;
 }) => {
+  const { t } = useTranslation();
+
   const totalMessages = _(chat.messages)
     .filter((message) => includes(['assistant', 'user'], message.role))
     .size();
@@ -54,8 +59,8 @@ const MenuItem = ({
       >
         <div className="mb-1 truncate font-medium">{chat.title}</div>
         <div className="flex justify-between text-xs text-muted-foreground">
-          <span>{totalMessages} messages</span>
-          <span>{moment(chat.createdAt).fromNow()}</span>
+          <span>{t('sidebar.totalMessages', { count: totalMessages })}</span>
+          <span>{moment(chat.createdAt).format('lll')}</span>
         </div>
       </div>
       <button
@@ -70,6 +75,10 @@ const MenuItem = ({
 };
 
 const Sidebar = () => {
+  const { t } = useTranslation();
+
+  const confirm = useConfirmDialog(ConfirmDialog);
+
   const router = useRouter();
   const { theme, systemTheme, setTheme } = useTheme();
 
@@ -109,11 +118,16 @@ const Sidebar = () => {
   }, [handleResize]);
 
   const handleRemoveChat = (id: string) => {
-    chatStore.removeChat(id);
+    confirm({
+      message: t('sidebar.confirm.removeChat'),
+      onConfirmAction: () => {
+        chatStore.removeChat(id);
 
-    if (currentChatId === id) {
-      router.push('/');
-    }
+        if (currentChatId === id) {
+          router.push('/');
+        }
+      },
+    });
   };
 
   const handleDragEnd = ({ source, destination }: DropResult) => {
@@ -149,7 +163,7 @@ const Sidebar = () => {
           <Link href="/" className="mb-0.5 inline-block text-xl font-bold">
             PeerAI
           </Link>
-          <div className="opacity-70">Customize your own AI assistant.</div>
+          <div className="opacity-70">{t('sidebar.slogan')}</div>
           <RiOpenaiFill
             size={54}
             className="absolute right-0 top-4 text-primary/10 transition-colors duration-300 group-hover:text-primary/20"
@@ -197,8 +211,8 @@ const Sidebar = () => {
         </div>
         <div className="flex justify-between pt-5">
           <Button variant="outline" onClick={() => router.push('/')}>
-            <RiAddCircleLine size={18} />
-            <div className="ml-1.5">New Chat</div>
+            <RiChat3Line size={18} />
+            <div className="ml-1.5">{t('sidebar.newChat')}</div>
           </Button>
           <div className="flex gap-1">
             <Button

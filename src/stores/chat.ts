@@ -1,5 +1,5 @@
 import type { PutBlobResult } from '@vercel/blob';
-import { filter, find, head, isNil, map } from 'lodash';
+import { filter, find, head, isNil, map, startsWith } from 'lodash';
 import moment from 'moment';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
@@ -7,7 +7,13 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import { uuid } from '@/lib/helpers';
 import { storage } from '@/lib/idb-storage';
 import { StoreKey } from '@/lib/store-keys';
-import type { IChat, IChatMessage, IChatSetting, IMask } from '@/types';
+import {
+  ChatPlugin,
+  type IChat,
+  type IChatMessage,
+  type IChatSetting,
+  type IMask,
+} from '@/types';
 
 import { useConfigStore } from './config';
 
@@ -18,7 +24,7 @@ type ChatState = {
 
 type ChatAction = {
   updateChats: (chats: IChat[]) => void;
-  addChat: (title?: string) => IChat;
+  addChat: (title: string) => IChat;
   getChatById: (id: string) => IChat;
   updateChatTitle: (id: string, title: string) => void;
   updateChatInput: (id: string, input?: string) => void;
@@ -50,7 +56,7 @@ const useChatStore = create<ChatState & ChatAction>()(
           chats: [
             {
               id: uuid(),
-              title: title || 'New Chat',
+              title,
               messages: [],
               settings: {
                 model: config.defaultModel,
@@ -103,18 +109,20 @@ const useChatStore = create<ChatState & ChatAction>()(
           ),
         })),
 
-      updateChatSettings: (id, settings: Partial<IChatSetting>) =>
+      updateChatSettings: (id, newSettings: Partial<IChatSetting>) =>
         set((state) => ({
           chats: map(state.chats, (chat) => {
             if (chat.id === id) {
-              // Will add the `shouldUpdate` variable later
-              return {
-                ...chat,
-                settings: {
-                  ...chat.settings,
-                  ...settings,
-                },
-              };
+              const settings = { ...chat.settings, ...newSettings };
+
+              if (!startsWith(settings.model, 'gpt-4')) {
+                settings.plugins = filter(
+                  settings.plugins,
+                  (plugin) => plugin !== ChatPlugin.ImageGenerator,
+                );
+              }
+
+              return { ...chat, settings };
             }
 
             return chat;

@@ -1,4 +1,5 @@
-import { type ClassValue, clsx } from 'clsx';
+import type { ClassValue } from 'clsx';
+import clsx from 'clsx';
 import _, { isEmpty, isNil, startsWith } from 'lodash';
 import type { NextRequest } from 'next/server';
 import { twMerge } from 'tailwind-merge';
@@ -59,4 +60,6 @@ const isJSON = (str: string): boolean => {
   }
 };
 
-export { auth, cn, emptyToUndefined, isJSON, truncate, uuid };
+const isTrue = (str?: string): boolean => str === 'true' || str === '1';
+
+export { auth, cn, emptyToUndefined, isJSON, isTrue, truncate, uuid };
