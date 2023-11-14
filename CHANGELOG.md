@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/toandev95/Peer-AI/compare/v1.1.0...v1.2.0) (2023-11-14)
+
+
+### Features
+
+* multi language (i18n) ([4ecd7d2](https://github.com/toandev95/Peer-AI/commit/4ecd7d22ec3d40c849ead837a6fbf897041e5fc3))
+
 # [1.1.0](https://github.com/toandev95/Peer-AI/compare/v1.0.0...v1.1.0) (2023-11-10)
 
 
