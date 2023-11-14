@@ -1,10 +1,14 @@
 'use client';
 
+import 'moment/locale/vi';
+
 import { isArray, isEmpty, isNil } from 'lodash';
+import moment from 'moment';
 import type { ReactNode } from 'react';
 import { useEffect } from 'react';
 
 import { useBreakpoint } from '@/hooks';
+import i18n from '@/i18n';
 import { cn, emptyToUndefined } from '@/lib/helpers';
 import { useConfigStore, useMaskStore, usePromptStore } from '@/stores';
 
@@ -20,6 +24,10 @@ const Layout = ({ children }: { children: ReactNode }) => {
   const updateBuiltInPrompts = usePromptStore(
     (state) => state.updateBuiltInPrompts,
   );
+
+  i18n.on('languageChanged', (lng) => {
+    moment.locale(lng);
+  });
 
   useEffect(() => {
     (async () => {

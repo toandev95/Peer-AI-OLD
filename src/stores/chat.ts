@@ -1,11 +1,11 @@
 import type { PutBlobResult } from '@vercel/blob';
 import { filter, find, head, isNil, map, startsWith } from 'lodash';
+import moment from 'moment';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { uuid } from '@/lib/helpers';
 import { storage } from '@/lib/idb-storage';
-import moment from '@/lib/moment';
 import { StoreKey } from '@/lib/store-keys';
 import {
   ChatPlugin,

@@ -3,6 +3,7 @@
 'use client';
 
 import { isEmpty, isNil } from 'lodash';
+import moment from 'moment';
 import type { ChangeEvent } from 'react';
 import { useState } from 'react';
 import type { IconType } from 'react-icons';
@@ -21,7 +22,6 @@ import remarkMath from 'remark-math';
 
 import { useCopyToClipboard } from '@/hooks';
 import { cn } from '@/lib/helpers';
-import moment from '@/lib/moment';
 import type { IAgentAction, IChatMessage } from '@/types';
 
 import { MemoizedReactMarkdown } from './Markdown';

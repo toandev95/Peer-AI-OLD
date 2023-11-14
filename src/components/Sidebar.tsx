@@ -8,6 +8,7 @@ import type {
 } from '@hello-pangea/dnd';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import _, { includes, isNil } from 'lodash';
+import moment from 'moment';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTheme } from 'next-themes';
@@ -23,7 +24,6 @@ import {
 } from 'react-icons/ri';
 
 import { cn } from '@/lib/helpers';
-import moment from '@/lib/moment';
 import { useChatStore, useConfigStore } from '@/stores';
 import type { IChat } from '@/types';
 
@@ -60,7 +60,7 @@ const MenuItem = ({
         <div className="mb-1 truncate font-medium">{chat.title}</div>
         <div className="flex justify-between text-xs text-muted-foreground">
           <span>{t('sidebar.totalMessages', { count: totalMessages })}</span>
-          <span>{moment(chat.createdAt).fromNow()}</span>
+          <span>{moment(chat.createdAt).format('lll')}</span>
         </div>
       </div>
       <button
@@ -119,7 +119,7 @@ const Sidebar = () => {
 
   const handleRemoveChat = (id: string) => {
     confirm({
-      message: 'Are you sure you want to remove this chat?',
+      message: t('sidebar.confirm.removeChat'),
       onConfirmAction: () => {
         chatStore.removeChat(id);
 

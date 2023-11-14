@@ -5,6 +5,7 @@ import _, {
   cloneDeep,
   filter,
   findIndex,
+  head,
   includes,
   isEmpty,
   isEqual,
@@ -16,11 +17,13 @@ import _, {
   startsWith,
   takeWhile,
 } from 'lodash';
+import moment from 'moment';
 import Link from 'next/link';
 import type { ChangeEvent } from 'react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  RiArrowDownLine,
   RiCloseCircleLine,
   RiFullscreenExitLine,
   RiFullscreenLine,
@@ -45,7 +48,6 @@ import {
   useToast,
 } from '@/hooks';
 import { emptyToUndefined, isTrue, truncate, uuid } from '@/lib/helpers';
-import moment from '@/lib/moment';
 import { useChatStore, useConfigStore, usePromptStore } from '@/stores';
 import type { IChat, IChatMessage, IPrompt } from '@/types';
 import { ChatPlugin } from '@/types';
@@ -161,7 +163,6 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
   const [isShowToolbarPrompt, setIsShowToolbarPrompt] = useToggle(false);
 
   const { formRef, onKeyDown } = useEnterSubmit(configStore.sendKey);
-  const scrollRef = useRef<HTMLDivElement>(null);
 
   const isDallEEnabled = isTrue(process.env.NEXT_PUBLIC_OPENAI_DALLE_ENABLED);
 
@@ -348,15 +349,18 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
     [currentChat.messages],
   );
 
-  const filledMessages = useMemo(() => {
-    if (!isNil(scrollRef.current)) {
-      scrollRef.current.scrollTo(0, 200);
-    }
+  const filledMessages = useMemo(
+    () =>
+      _(cleanedMessages)
+        .slice(0, endIndex + configStore.paginationSize)
+        .value(),
+    [cleanedMessages, configStore.paginationSize, endIndex],
+  );
 
-    return _(cleanedMessages)
-      .slice(0, endIndex + configStore.paginationSize)
-      .value();
-  }, [cleanedMessages, configStore.paginationSize, endIndex]);
+  const { scrollRef, isBottom, scrollToBottom } = useChatScrollAnchor([
+    cleanedMessages,
+    input,
+  ]);
 
   useEffect(() => {
     if (!isNil(currentChat.settings.model) || isNil(configStore.defaultModel)) {
@@ -374,8 +378,6 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
   useEffect(() => {
     syncMessages(currentChat.id, messages);
   }, [currentChat.id, messages, syncMessages]);
-
-  useChatScrollAnchor([cleanedMessages, input], scrollRef);
 
   const isShowPrompt = useMemo(() => {
     if (isEmpty(promptStore.prompts)) {
@@ -501,7 +503,7 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
 
   const handleRemoveFile = (file: PutBlobResult) => {
     confirm({
-      message: 'Are you sure you want to remove this file?',
+      message: t('chatWindow.confirm.removeFile'),
       onConfirmAction: () => {
         const newAttachments = filter(
           currentChat.attachments,
@@ -581,7 +583,7 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
             isTyping={
               isLoading &&
               message.role === 'assistant' &&
-              last(filledMessages)!.id === message.id
+              head(filledMessages)!.id === message.id
             }
             onChange={(newContent) => handleChangeMessage(message, newContent)}
             onRegenerate={() => handleRegenerateMessage(message)}
@@ -592,7 +594,7 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
           <div className="flex h-full w-full flex-col items-center justify-center gap-2">
             <RiOpenaiFill size={60} className="text-muted-foreground/60" />
             <div className="text-lg font-medium text-muted-foreground/60">
-              How can I assist you today?
+              {t('chatWindow.emptyChat')}
             </div>
           </div>
         )}
@@ -838,12 +840,22 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
               </div>
             </DialogContent>
           </Dialog>
-          <ToolbarIconButton
-            IconComponent={VscClearAll}
-            label={t('chatWindow.toolbar.clearHistory')}
-            className="ml-auto"
-            onClick={handleClearHistory}
-          />
+          <div className="ml-auto flex gap-1.5">
+            {!isBottom && (
+              <FadeIn initial={{ opacity: 0, x: 0, y: 0 }}>
+                <ToolbarIconButton
+                  IconComponent={RiArrowDownLine}
+                  label={t('chatWindow.toolbar.scrollToBottom')}
+                  onClick={() => scrollToBottom()}
+                />
+              </FadeIn>
+            )}
+            <ToolbarIconButton
+              IconComponent={VscClearAll}
+              label={t('chatWindow.toolbar.clearHistory')}
+              onClick={handleClearHistory}
+            />
+          </div>
         </div>
         <form ref={formRef} className="relative" onSubmit={handleSubmit}>
           <TextareaAutosize
