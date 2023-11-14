@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/toandev95/Peer-AI/compare/v1.2.0...v1.3.0) (2023-11-14)
+
+
+### Features
+
+* usage limit ([e748c04](https://github.com/toandev95/Peer-AI/commit/e748c0405775f4b6e786b616396402f9ff1a7c06))
+
 # [1.2.0](https://github.com/toandev95/Peer-AI/compare/v1.1.0...v1.2.0) (2023-11-14)
 
 
