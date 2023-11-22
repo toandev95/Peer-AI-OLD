@@ -47,7 +47,13 @@ import {
   useFileUpload,
   useToast,
 } from '@/hooks';
-import { emptyToUndefined, isTrue, truncate, uuid } from '@/lib/helpers';
+import {
+  emptyToUndefined,
+  getModelNameByModelID,
+  isTrue,
+  truncate,
+  uuid,
+} from '@/lib/helpers';
 import { useChatStore, useConfigStore, usePromptStore } from '@/stores';
 import type { IChat, IChatMessage, IPrompt } from '@/types';
 import { ChatPlugin } from '@/types';
@@ -363,6 +369,10 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
   ]);
 
   useEffect(() => {
+    scrollToBottom();
+  }, [scrollToBottom]);
+
+  useEffect(() => {
     if (!isNil(currentChat.settings.model) || isNil(configStore.defaultModel)) {
       return;
     }
@@ -453,6 +463,9 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
           (message) => message.role === 'system',
         );
         setMessages(newMessages);
+
+        updateChatAttachments(currentChat.id, []);
+        updateChatSummary(currentChat.id, undefined, undefined);
       },
     });
   };
@@ -534,7 +547,7 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
             />
             {breakpoint !== 'tablet' && (
               <AppBarIconButton
-                key={2}
+                key={3}
                 IconComponent={
                   configStore.isMaximized
                     ? RiFullscreenExitLine
@@ -736,7 +749,7 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
                         <SelectGroup>
                           {configStore.models.map((model) => (
                             <SelectItem key={model} value={model}>
-                              {model}
+                              {getModelNameByModelID(model)}
                             </SelectItem>
                           ))}
                         </SelectGroup>
