@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/toandev95/Peer-AI/compare/v1.3.0...v1.3.1) (2023-11-22)
+
+
+### Bug Fixes
+
+* try to fix the chat api ([11ac038](https://github.com/toandev95/Peer-AI/commit/11ac0386d63208052b17e0c2410c5c1b4edc7f7c))
+
 # [1.3.0](https://github.com/toandev95/Peer-AI/compare/v1.2.0...v1.3.0) (2023-11-14)
 
 
