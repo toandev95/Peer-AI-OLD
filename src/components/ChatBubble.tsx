@@ -16,6 +16,7 @@ import {
 } from 'react-icons/ri';
 import { BeatLoader } from 'react-spinners';
 import TextareaAutosize from 'react-textarea-autosize';
+import remarkBreaks from 'remark-breaks';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 
@@ -235,7 +236,7 @@ const ChatBubble = ({
                 'prose prose-sm select-text break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 prose-img:my-0',
                 message.role === 'assistant' && isTyping && 'typing',
               )}
-              remarkPlugins={[remarkGfm, remarkMath]}
+              remarkPlugins={[remarkGfm, remarkMath, remarkBreaks]}
               components={{
                 p: ({ children }) => {
                   return <p className="mb-2 last:mb-0">{children}</p>;

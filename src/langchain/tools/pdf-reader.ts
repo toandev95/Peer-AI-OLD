@@ -37,7 +37,10 @@ class PDFReader extends Tool {
 
   // eslint-disable-next-line class-methods-use-this
   private async getDocs(url: string): Promise<Document<Record<string, any>>[]> {
-    const res = await fetch(url);
+    const res = await fetch(url, {
+      method: 'GET',
+      redirect: 'follow',
+    });
     const arrayBuffer = await res.arrayBuffer();
 
     const parsedPdf = await getDocument(new Uint8Array(arrayBuffer)).promise;
