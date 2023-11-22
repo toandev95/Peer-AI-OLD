@@ -16,6 +16,7 @@ import { useTranslation } from 'react-i18next';
 import { RiCloseLine } from 'react-icons/ri';
 
 import i18n, { supportedLanguages } from '@/i18n';
+import { getModelNameByModelID } from '@/lib/helpers';
 import {
   useChatStore,
   useConfigStore,
@@ -293,7 +294,7 @@ const Settings = () => {
                     configStore.updateConfig({ defaultModel: model });
                   }}
                 >
-                  <SelectTrigger className="w-[180px] truncate">
+                  <SelectTrigger className="min-w-[180px] truncate">
                     <SelectValue
                       placeholder={t('settings.model.placeholder')}
                     />
@@ -302,7 +303,7 @@ const Settings = () => {
                     <SelectGroup>
                       {configStore.models.map((model) => (
                         <SelectItem key={model} value={model}>
-                          {model}
+                          {getModelNameByModelID(model)}
                         </SelectItem>
                       ))}
                     </SelectGroup>

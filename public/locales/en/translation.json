@@ -147,8 +147,7 @@
       "send": "Send"
     },
     "confirm": {
-      "clearHistory": "Are you sure you want to clear the chat history?",
-      "removeFile": "Are you sure you want to remove this file?"
+      "clearHistory": "Are you sure you want to clear the chat history?"
     }
   }
 }

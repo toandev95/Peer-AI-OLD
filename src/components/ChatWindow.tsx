@@ -1,6 +1,5 @@
 'use client';
 
-import type { PutBlobResult } from '@vercel/blob';
 import _, {
   cloneDeep,
   filter,
@@ -12,19 +11,15 @@ import _, {
   isNil,
   last,
   lastIndexOf,
-  map,
-  pick,
   startsWith,
   takeWhile,
 } from 'lodash';
 import moment from 'moment';
-import Link from 'next/link';
 import type { ChangeEvent } from 'react';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   RiArrowDownLine,
-  RiCloseCircleLine,
   RiFullscreenExitLine,
   RiFullscreenLine,
   RiLoader3Line,
@@ -35,19 +30,22 @@ import {
   RiSendPlane2Line,
   RiSettings4Line,
 } from 'react-icons/ri';
-import { VscClearAll, VscFilePdf } from 'react-icons/vsc';
+import { VscClearAll } from 'react-icons/vsc';
 import TextareaAutosize from 'react-textarea-autosize';
-import { useToggle } from 'react-use';
+import { useEffectOnce, useToggle } from 'react-use';
 
 import {
   useBreakpoint,
   useChat,
   useChatScrollAnchor,
   useEnterSubmit,
-  useFileUpload,
-  useToast,
 } from '@/hooks';
-import { emptyToUndefined, isTrue, truncate, uuid } from '@/lib/helpers';
+import {
+  emptyToUndefined,
+  getModelNameByModelID,
+  isTrue,
+  uuid,
+} from '@/lib/helpers';
 import { useChatStore, useConfigStore, usePromptStore } from '@/stores';
 import type { IChat, IChatMessage, IPrompt } from '@/types';
 import { ChatPlugin } from '@/types';
@@ -141,7 +139,6 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
 
   const confirm = useConfirmDialog(ConfirmDialog);
 
-  const { toast } = useToast();
   const breakpoint = useBreakpoint();
 
   const promptStore = usePromptStore();
@@ -152,9 +149,6 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
   const updateChatInput = useChatStore((state) => state.updateChatInput);
   const updateChatSummary = useChatStore((state) => state.updateChatSummary);
   const updateChatSettings = useChatStore((state) => state.updateChatSettings);
-  const updateChatAttachments = useChatStore(
-    (state) => state.updateChatAttachments,
-  );
   const syncMessages = useChatStore((state) => state.syncMessages);
 
   const currentChat = getChatById(id);
@@ -165,23 +159,6 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
   const { formRef, onKeyDown } = useEnterSubmit(configStore.sendKey);
 
   const isDallEEnabled = isTrue(process.env.NEXT_PUBLIC_OPENAI_DALLE_ENABLED);
-
-  const {
-    ref: fileRef,
-    isUploading,
-    handleFilePicker,
-    handleFileChange,
-  } = useFileUpload({
-    onUploaded: (file: PutBlobResult) => {
-      updateChatAttachments(currentChat.id, [
-        ...(currentChat.attachments || []),
-        file,
-      ]);
-    },
-    onError: (err: Error) => {
-      toast({ description: err.message });
-    },
-  });
 
   const handleGenerateTitle = async () => {
     const chat = getChatById(id);
@@ -314,13 +291,6 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
       openAIKey: emptyToUndefined(configStore.openAIKey),
       openAIEndpoint: emptyToUndefined(configStore.openAIEndpoint),
       ...currentChat.settings,
-      ...(!isNil(currentChat.attachments)
-        ? {
-            attachments: map(currentChat.attachments, (blob) =>
-              pick(blob, ['pathname', 'url', 'contentType']),
-            ),
-          }
-        : {}),
       streaming: true,
     },
     headers: {
@@ -361,6 +331,10 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
     cleanedMessages,
     input,
   ]);
+
+  useEffectOnce(() => {
+    scrollToBottom();
+  });
 
   useEffect(() => {
     if (!isNil(currentChat.settings.model) || isNil(configStore.defaultModel)) {
@@ -453,6 +427,8 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
           (message) => message.role === 'system',
         );
         setMessages(newMessages);
+
+        updateChatSummary(currentChat.id, undefined, undefined);
       },
     });
   };
@@ -501,19 +477,6 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
     updateChatInput(currentChat.id);
   };
 
-  const handleRemoveFile = (file: PutBlobResult) => {
-    confirm({
-      message: t('chatWindow.confirm.removeFile'),
-      onConfirmAction: () => {
-        const newAttachments = filter(
-          currentChat.attachments,
-          (attachment) => !isEqual(attachment, file),
-        );
-        updateChatAttachments(currentChat.id, newAttachments);
-      },
-    });
-  };
-
   return (
     <div
       ref={scrollRef}
@@ -534,7 +497,7 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
             />
             {breakpoint !== 'tablet' && (
               <AppBarIconButton
-                key={2}
+                key={3}
                 IconComponent={
                   configStore.isMaximized
                     ? RiFullscreenExitLine
@@ -600,28 +563,6 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
         )}
       </div>
       <div className="sticky bottom-0 flex flex-col gap-2 border-t bg-background/60 px-4 py-3 backdrop-blur">
-        {!isNil(currentChat.attachments) &&
-          !isEmpty(currentChat.attachments) && (
-            <div className="flex gap-2 overflow-x-auto">
-              {currentChat.attachments.map((file, i) => (
-                <div
-                  key={`${file.pathname}_${i.toString()}`}
-                  className="flex  items-center gap-2 rounded-lg border px-3 py-2 pr-2"
-                >
-                  <Link
-                    href={file.url}
-                    className="max-w-[250px] select-text truncate"
-                    target="_blank"
-                  >
-                    {truncate(file.pathname, 40)}
-                  </Link>
-                  <button type="button" onClick={() => handleRemoveFile(file)}>
-                    <RiCloseCircleLine size={16} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
         {isShowPrompt && (
           <FadeIn className="flex max-h-[20vh] flex-col divide-y overflow-y-auto overscroll-contain rounded-lg border bg-background text-xs scrollbar scrollbar-thumb-accent-foreground/30 scrollbar-thumb-rounded-full scrollbar-w-[3px]">
             {promptStore.prompts.map((prompt) => (
@@ -736,7 +677,7 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
                         <SelectGroup>
                           {configStore.models.map((model) => (
                             <SelectItem key={model} value={model}>
-                              {model}
+                              {getModelNameByModelID(model)}
                             </SelectItem>
                           ))}
                         </SelectGroup>
@@ -870,25 +811,6 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
             disabled={isLoading}
           />
           <div className="absolute bottom-2 right-2 flex gap-2">
-            {includes(currentChat.settings.plugins, ChatPlugin.PDFReader) && (
-              <FadeIn initial={{ opacity: 0, x: 0, y: 0 }}>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  onClick={handleFilePicker}
-                  disabled={
-                    isUploading || (currentChat.attachments || []).length >= 3
-                  }
-                >
-                  {isUploading ? (
-                    <RiLoader3Line size={18} className="animate-spin" />
-                  ) : (
-                    <VscFilePdf size={18} />
-                  )}
-                </Button>
-              </FadeIn>
-            )}
             {isLoading ? (
               <Button type="submit" variant="outline" onClick={() => stop()}>
                 <RiLoader3Line size={18} className="animate-spin" />
@@ -905,14 +827,6 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
           </div>
         </form>
       </div>
-      <input
-        ref={fileRef}
-        type="file"
-        className="hidden"
-        accept=".pdf"
-        onChange={handleFileChange}
-        disabled={isUploading}
-      />
     </div>
   );
 };

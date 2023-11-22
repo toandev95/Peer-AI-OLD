@@ -78,4 +78,14 @@
   em-emoji-picker {
     --font-family: var(--font-ibm-plex-sans);
   }
+
+  .typing {
+    > :last-child:is(p),
+    > :last-child:is(ol) > li:last-child:not(:has(p)),
+    > :last-child:is(ol) > li:last-child:has(p) > p {
+      &::after {
+        content: " ▍";
+      }
+    }
+  }
 }

@@ -2,7 +2,7 @@
 
 'use client';
 
-import { isEmpty, isNil } from 'lodash';
+import _, { isEmpty, isNil } from 'lodash';
 import moment from 'moment';
 import type { ChangeEvent } from 'react';
 import { useState } from 'react';
@@ -113,6 +113,7 @@ const EditChatMessageButton = ({
 const ChatBubble = ({
   emoji,
   message,
+  isTyping,
   onChange,
   onRegenerate,
   onRemove,
@@ -199,21 +200,24 @@ const ChatBubble = ({
       </div>
       {!isNil(message.tools) && !isEmpty(message.tools) && (
         <div className="mb-2 flex max-w-[50%] flex-col gap-1.5">
-          {message.tools.map(({ tool, toolInput }, i) => (
-            <div
-              key={`${tool}_${i.toString()}`}
-              className="w-full truncate text-xs text-muted-foreground"
-            >
-              {!isEmpty(toolInput.input) ? (
-                <>
-                  <span className="font-medium">{getToolName(tool)}</span>:{' '}
-                  {toolInput.input}
-                </>
-              ) : (
-                <span className="font-medium">{getToolName(tool)}</span>
-              )}
-            </div>
-          ))}
+          {_(message.tools)
+            .map(({ tool, toolInput }, i) => (
+              <div
+                key={`${tool}_${i.toString()}`}
+                className="w-full truncate text-xs text-muted-foreground"
+              >
+                {!isEmpty(toolInput.input) ? (
+                  <>
+                    <span className="font-medium">{getToolName(tool)}</span>:{' '}
+                    {toolInput.input}
+                  </>
+                ) : (
+                  <span className="font-medium">{getToolName(tool)}</span>
+                )}
+              </div>
+            ))
+            // .last()
+            .value()}
         </div>
       )}
       <div className="max-w-[75%]">
@@ -228,12 +232,15 @@ const ChatBubble = ({
           )}
           {!isEmpty(message.content) && (
             <MemoizedReactMarkdown
-              className="prose prose-sm select-text break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 prose-img:my-0"
+              className={cn(
+                'prose prose-sm select-text break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 prose-img:my-0',
+                message.role === 'assistant' && isTyping && 'typing',
+              )}
               remarkPlugins={[remarkGfm, remarkMath, remarkBreaks]}
               components={{
-                p: ({ children }) => (
-                  <p className="mb-2 last:mb-0">{children}</p>
-                ),
+                p: ({ children }) => {
+                  return <p className="mb-2 last:mb-0">{children}</p>;
+                },
                 code: ({ inline, className, children, ...props }) => {
                   if (children.length > 0) {
                     if (children[0] === '▍') {

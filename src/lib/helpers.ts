@@ -62,4 +62,34 @@ const isJSON = (str: string): boolean => {
 
 const isTrue = (str?: string): boolean => str === 'true' || str === '1';
 
-export { auth, cn, emptyToUndefined, isJSON, isTrue, truncate, uuid };
+const getModelNameByModelID = (id: string): string => {
+  switch (id) {
+    case 'gpt-4':
+      return 'GPT-4';
+    case 'gpt-4-0314':
+      return 'GPT-4 (0314)';
+    case 'gpt-4-0613':
+      return 'GPT-4 (0613)';
+    case 'gpt-3.5-turbo-0613':
+      return 'GPT-3.5 Turbo (0613)';
+    case 'gpt-3.5-turbo-16k-0613':
+      return 'GPT-3.5 Turbo (0613, 16k)';
+    case 'gpt-3.5-turbo-0301':
+      return 'GPT-3.5 Turbo (0301)';
+    case 'gpt-3.5-turbo':
+      return 'GPT-3.5 Turbo';
+    default:
+      return id.toUpperCase();
+  }
+};
+
+export {
+  auth,
+  cn,
+  emptyToUndefined,
+  getModelNameByModelID,
+  isJSON,
+  isTrue,
+  truncate,
+  uuid,
+};
