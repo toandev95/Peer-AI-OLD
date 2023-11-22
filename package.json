@@ -52,7 +52,7 @@
     "idb-keyval": "^6.2.1",
     "immer": "^10.0.3",
     "katex": "^0.16.9",
-    "langchain": "^0.0.186",
+    "langchain": "0.0.196",
     "lodash": "^4.17.21",
     "lucide-react": "^0.279.0",
     "moment": "^2.29.4",

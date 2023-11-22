@@ -1,6 +1,5 @@
 import type { PutBlobResult } from '@vercel/blob';
 import { ipAddress } from '@vercel/edge';
-import { kv } from '@vercel/kv';
 import { StreamingTextResponse } from 'ai';
 import { initializeAgentExecutorWithOptions } from 'langchain/agents';
 import { ChatOpenAI } from 'langchain/chat_models/openai';
@@ -58,19 +57,19 @@ export async function POST(
     );
   }
 
-  const totalUses = (await kv.get<number>(realIp)) || 0;
-  debug('Total Uses: %d', totalUses);
+  // const totalUses = (await kv.get<number>(realIp)) || 0;
+  // debug('Total Uses: %d', totalUses);
 
-  if (totalUses >= 50) {
-    return new Response(
-      'You have exceeded the number of uses for the day. Please try again later',
-      { status: 429 },
-    );
-  }
+  // if (totalUses >= 50) {
+  //   return new Response(
+  //     'You have exceeded the number of uses for the day. Please try again later',
+  //     { status: 429 },
+  //   );
+  // }
 
-  await kv.set(realIp, totalUses + 1, {
-    ex: moment().endOf('day').diff(moment(), 'seconds'),
-  });
+  // await kv.set(realIp, totalUses + 1, {
+  //   ex: moment().endOf('day').diff(moment(), 'seconds'),
+  // });
 
   const body = await req.json();
 
