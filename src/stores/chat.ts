@@ -1,4 +1,3 @@
-import type { PutBlobResult } from '@vercel/blob';
 import { filter, find, head, isNil, map, startsWith } from 'lodash';
 import moment from 'moment';
 import { create } from 'zustand';
@@ -30,7 +29,6 @@ type ChatAction = {
   updateChatInput: (id: string, input?: string) => void;
   updateChatSummary: (id: string, summary?: string, messageId?: string) => void;
   updateChatSettings: (id: string, settings: Partial<IChatSetting>) => void;
-  updateChatAttachments: (id: string, attachments: PutBlobResult[]) => void;
   removeChat: (id: string) => void;
   syncMessages: (id: string, messages: IChatMessage[]) => void;
   addMessageToChat: (id: string, message: IChatMessage) => void;
@@ -127,13 +125,6 @@ const useChatStore = create<ChatState & ChatAction>()(
 
             return chat;
           }),
-        })),
-
-      updateChatAttachments: (id, attachments) =>
-        set((state) => ({
-          chats: map(state.chats, (chat) =>
-            chat.id === id ? { ...chat, attachments } : chat,
-          ),
         })),
 
       removeChat: (id) =>

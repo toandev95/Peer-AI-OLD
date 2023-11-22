@@ -1,4 +1,3 @@
-import type { PutBlobResult } from '@vercel/blob';
 import type { AgentAction } from 'langchain/schema';
 import type { Model } from 'openai/resources';
 
@@ -30,7 +29,7 @@ type IChat = {
   input?: string;
   mask?: IMask;
   isTitleGenerated?: boolean;
-  attachments?: PutBlobResult[];
+  attachments?: any[]; // It will be used in the future
   contextSummary?: string;
   contextSummaryMessageId?: string;
 };

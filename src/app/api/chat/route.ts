@@ -1,4 +1,3 @@
-import type { PutBlobResult } from '@vercel/blob';
 import { ipAddress } from '@vercel/edge';
 import { StreamingTextResponse } from 'ai';
 import { initializeAgentExecutorWithOptions } from 'langchain/agents';
@@ -33,10 +32,6 @@ import { ChatPlugin } from '@/types';
 
 export const runtime: ServerRuntime = 'edge';
 
-const debug = (msg: any, ...params: any[]) =>
-  // eslint-disable-next-line no-console
-  console.debug(`[CHAT API]: ${msg}`, ...params);
-
 export async function POST(
   req: NextRequest,
 ): Promise<StreamingTextResponse | Response> {
@@ -48,28 +43,12 @@ export async function POST(
   }
 
   const realIp = ipAddress(req) || req.headers.get('x-forwarded-for');
-  debug('IP Address: %s', realIp);
-
   if (isNil(realIp)) {
     return new Response(
       'Access is denied due to invalid IP address. Please check your IP address and try again.',
       { status: 401 },
     );
   }
-
-  // const totalUses = (await kv.get<number>(realIp)) || 0;
-  // debug('Total Uses: %d', totalUses);
-
-  // if (totalUses >= 50) {
-  //   return new Response(
-  //     'You have exceeded the number of uses for the day. Please try again later',
-  //     { status: 429 },
-  //   );
-  // }
-
-  // await kv.set(realIp, totalUses + 1, {
-  //   ex: moment().endOf('day').diff(moment(), 'seconds'),
-  // });
 
   const body = await req.json();
 
@@ -114,7 +93,6 @@ export async function POST(
     frequencyPenalty,
     presencePenalty,
     plugins,
-    attachments,
     streaming,
   } = body as {
     openAIKey?: string;
@@ -126,7 +104,6 @@ export async function POST(
     frequencyPenalty: number;
     presencePenalty: number;
     plugins: ChatPlugin[];
-    attachments?: PutBlobResult[];
     streaming?: boolean;
   };
 
@@ -154,15 +131,6 @@ export async function POST(
   );
 
   const chatHistory = new ChatMessageHistory(previousMessages);
-
-  if (!isNil(attachments) && !isEmpty(attachments)) {
-    await chatHistory.addMessage(
-      new SystemMessage(
-        `These are the attached files that the user has uploaded:
-        ${JSON.stringify(attachments)})}`,
-      ),
-    );
-  }
 
   const memory = new BufferMemory({
     memoryKey: 'chat_history',

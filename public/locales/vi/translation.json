@@ -127,8 +127,7 @@
       "send": "Gửi"
     },
     "confirm": {
-      "clearHistory": "Bạn có chắc chắn muốn xóa lịch sử trò chuyện?",
-      "removeFile": "Bạn có chắc chắn muốn xóa tệp này?"
+      "clearHistory": "Bạn có chắc chắn muốn xóa lịch sử trò chuyện?"
     }
   }
 }

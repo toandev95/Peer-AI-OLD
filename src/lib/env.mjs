@@ -9,11 +9,6 @@ const Env = createEnv({
     OPENAI_API_KEY: z.string().startsWith('sk-'),
     OPENAI_API_URL: z.string().url().optional(),
     OPENAI_DALLE_ENABLED: z.enum(['true', 'false']).optional().default('false'),
-    BLOB_READ_WRITE_TOKEN: z.string().startsWith('vercel_blob_').optional(),
-    KV_URL: z.string(),
-    KV_REST_API_URL: z.string(),
-    KV_REST_API_TOKEN: z.string(),
-    KV_REST_API_READ_ONLY_TOKEN: z.string(),
   },
   client: {
     NEXT_PUBLIC_OPENAI_DALLE_ENABLED: z
@@ -28,11 +23,6 @@ const Env = createEnv({
     OPENAI_DALLE_ENABLED: process.env.OPENAI_DALLE_ENABLED,
     NEXT_PUBLIC_OPENAI_DALLE_ENABLED:
       process.env.NEXT_PUBLIC_OPENAI_DALLE_ENABLED,
-    BLOB_READ_WRITE_TOKEN: process.env.BLOB_READ_WRITE_TOKEN,
-    KV_URL: process.env.KV_URL,
-    KV_REST_API_URL: process.env.KV_REST_API_URL,
-    KV_REST_API_TOKEN: process.env.KV_REST_API_TOKEN,
-    KV_REST_API_READ_ONLY_TOKEN: process.env.KV_REST_API_READ_ONLY_TOKEN,
   },
 });
 
