@@ -4,7 +4,6 @@ import type {
   ChatRequest,
   ChatRequestOptions,
   CreateMessage as RawCreateMessage,
-  Message as RawMessage,
   UseChatOptions,
 } from 'ai';
 import { createChunkDecoder } from 'ai';
@@ -31,9 +30,8 @@ import type { KeyedMutator } from 'swr';
 import useSWR from 'swr';
 
 import { isJSON, uuid } from '@/lib/helpers';
-import type { IAgentAction } from '@/types';
+import type { IAgentAction, IChatMessage as Message } from '@/types';
 
-type Message = RawMessage & { tools?: IAgentAction[] };
 type CreateMessage = RawCreateMessage & { tools?: IAgentAction[] };
 
 type UseChatHelpers = {

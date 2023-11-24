@@ -14,6 +14,7 @@ import {
   RiEdit2Line,
   RiRefreshLine,
 } from 'react-icons/ri';
+import { TiPin, TiPinOutline } from 'react-icons/ti';
 import { BeatLoader } from 'react-spinners';
 import TextareaAutosize from 'react-textarea-autosize';
 import remarkBreaks from 'remark-breaks';
@@ -40,16 +41,18 @@ import { FadeIn } from './UI/FadeIn';
 const ChatBubbleButton = ({
   IconComponent,
   size = 14,
+  className,
   onClick,
 }: {
   IconComponent: IconType;
   size?: number;
+  className?: string;
   onClick?: () => void;
 }) => (
   <Button
     variant="outline"
     size="icon"
-    className="h-6 w-8 text-muted-foreground shadow-none"
+    className={cn('h-6 w-8 text-muted-foreground shadow-none', className)}
     onClick={onClick}
   >
     <IconComponent size={size} />
@@ -117,6 +120,7 @@ const ChatBubble = ({
   onChange,
   onRegenerate,
   onRemove,
+  onPin,
 }: {
   emoji: string;
   message: IChatMessage;
@@ -124,6 +128,7 @@ const ChatBubble = ({
   onChange?: (newContent: string) => void;
   onRegenerate?: () => void;
   onRemove?: () => void;
+  onPin?: () => void;
 }) => {
   const { isCopied, copyToClipboard } = useCopyToClipboard();
 
@@ -184,7 +189,15 @@ const ChatBubble = ({
               onClick={onRegenerate}
             />
           )}
-          {/* <ChatBubbleButton IconComponent={TiPinOutline} onClick={() => {}} /> */}
+          {!isNil(onPin) && message.role !== 'system' && (
+            <ChatBubbleButton
+              IconComponent={message.isPinned ? TiPin : TiPinOutline}
+              className={cn(
+                message.isPinned && 'text-primary hover:text-primary',
+              )}
+              onClick={onPin}
+            />
+          )}
           <ChatBubbleButton
             IconComponent={isCopied ? RiCheckLine : RiClipboardLine}
             size={14}
@@ -223,8 +236,9 @@ const ChatBubble = ({
       <div className="max-w-[75%]">
         <div
           className={cn(
-            'rounded-lg bg-background px-3 py-2.5 shadow border border-transparent dark:border-inherit',
+            'rounded-lg bg-background px-3 py-2.5 shadow border border-transparent dark:border-inherit transition-colors',
             message.role === 'user' && 'bg-primary/[.08] dark:bg-primary/5',
+            message.isPinned && 'border-primary/60 dark:border-primary/60',
           )}
         >
           {message.role === 'assistant' && isEmpty(message.content) && (

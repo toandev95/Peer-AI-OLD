@@ -47,6 +47,10 @@
       "title": "Send Preview Bubble",
       "subtitle": "Allow previewing the message that will be sent while composing."
     },
+    "autoGenerateTitle": {
+      "title": "Auto Generate Title",
+      "subtitle": "Automatically generate a title for the conversation based on the current context."
+    },
     "accessCode": {
       "title": "Access Code",
       "subtitle": "The access code is authorized to access OpenAI."

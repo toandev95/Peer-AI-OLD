@@ -303,7 +303,10 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
         setTimeout(resolve, 200);
       });
 
-      handleGenerateTitle();
+      if (configStore.autoGenerateTitle) {
+        handleGenerateTitle();
+      }
+
       handleSummaryChat(lastMessage);
     },
   });
@@ -424,7 +427,7 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
       onConfirmAction: () => {
         const newMessages = filter(
           messages,
-          (message) => message.role === 'system',
+          (message) => message.role === 'system' || message.isPinned === true,
         );
         setMessages(newMessages);
 
@@ -438,7 +441,7 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
 
     const targetMessage = newMessages.find((msg) => msg.id === message.id);
 
-    if (targetMessage) {
+    if (!isNil(targetMessage)) {
       targetMessage.content = newContent;
     }
 
@@ -462,6 +465,18 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
 
   const handleRemoveMessage = (message: IChatMessage) => {
     const newMessages = filter(messages, (msg) => msg.id !== message.id);
+    setMessages(newMessages);
+  };
+
+  const handlePinMessage = (message: IChatMessage) => {
+    const newMessages = cloneDeep(messages);
+
+    const targetMessage = newMessages.find((msg) => msg.id === message.id);
+
+    if (!isNil(targetMessage)) {
+      targetMessage.isPinned = !targetMessage.isPinned;
+    }
+
     setMessages(newMessages);
   };
 
@@ -551,6 +566,7 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
             onChange={(newContent) => handleChangeMessage(message, newContent)}
             onRegenerate={() => handleRegenerateMessage(message)}
             onRemove={() => handleRemoveMessage(message)}
+            onPin={() => handlePinMessage(message)}
           />
         ))}
         {isEmpty(filledMessages) && isEmpty(input) && isNil(error) && (

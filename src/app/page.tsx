@@ -1,7 +1,5 @@
 import { ChatUI } from '@/components/ChatUI';
 
-const Index = () => {
+export default function Page() {
   return <ChatUI />;
-};
-
-export default Index;
+}

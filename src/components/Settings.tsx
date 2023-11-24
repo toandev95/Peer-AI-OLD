@@ -226,6 +226,17 @@ const Settings = () => {
                   }}
                 />
               </BoxItem>
+              <BoxItem
+                title={t('settings.autoGenerateTitle.title')}
+                subtitle={t('settings.autoGenerateTitle.subtitle')}
+              >
+                <Switch
+                  checked={configStore.autoGenerateTitle}
+                  onCheckedChange={(checked) => {
+                    configStore.updateConfig({ autoGenerateTitle: checked });
+                  }}
+                />
+              </BoxItem>
             </div>
           </Card>
         </FadeIn>

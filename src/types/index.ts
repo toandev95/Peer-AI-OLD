@@ -1,7 +1,6 @@
+import type { Message } from 'ai';
 import type { AgentAction } from 'langchain/schema';
 import type { Model } from 'openai/resources';
-
-import type { Message } from '@/hooks';
 
 enum SendKeys {
   Enter = 'Enter',
@@ -34,7 +33,10 @@ type IChat = {
   contextSummaryMessageId?: string;
 };
 
-type IChatMessage = Message & { tools?: IAgentAction[] };
+type IChatMessage = Message & {
+  tools?: IAgentAction[];
+  isPinned?: boolean;
+};
 
 type IChatSetting = {
   model?: Model['id'];

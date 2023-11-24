@@ -47,6 +47,10 @@
       "title": "Xem Trước Tin Nhắn",
       "subtitle": "Cho phép xem trước tin nhắn sẽ được gửi khi soạn."
     },
+    "autoGenerateTitle": {
+      "title": "Tự Động Tạo Tiêu Đề",
+      "subtitle": "Tự động tạo tiêu đề cho cuộc trò chuyện dựa vào ngữ cảnh hiện tại."
+    },
     "accessCode": {
       "title": "Mã Truy Cập",
       "subtitle": "Mã truy cập được ủy quyền để truy cập OpenAI."

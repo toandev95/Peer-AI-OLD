@@ -9,6 +9,7 @@ type ConfigState = {
   emoji: string;
   sendKey: SendKeys;
   sendPreviewBubble: boolean;
+  autoGenerateTitle: boolean;
   accessCode?: string;
   openAIKey?: string;
   openAIEndpoint?: string;
@@ -34,11 +35,12 @@ const initialState: ConfigState = {
   emoji: '😁',
   sendKey: SendKeys.Enter,
   sendPreviewBubble: true,
+  autoGenerateTitle: true,
   accessCode: undefined,
   openAIKey: undefined,
   openAIEndpoint: undefined,
   models: [],
-  maxTokens: 1000,
+  maxTokens: 2000,
   temperature: 0.3,
   topP: 1,
   frequencyPenalty: 0,
