@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/toandev95/Peer-AI/compare/v1.3.1...v1.4.0) (2023-11-24)
+
+
+### Features
+
+* pin message & config for auto generate title ([017407b](https://github.com/toandev95/Peer-AI/commit/017407b3132d2121d673fe5f9de48a0fe79cfedd))
+
 ## [1.3.1](https://github.com/toandev95/Peer-AI/compare/v1.3.0...v1.3.1) (2023-11-22)
 
 
