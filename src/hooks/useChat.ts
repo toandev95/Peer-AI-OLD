@@ -8,10 +8,10 @@ import type {
 } from 'ai';
 import { createChunkDecoder } from 'ai';
 import _, {
-  filter,
-  findIndex,
+  // filter,
+  // findIndex,
   has,
-  includes,
+  // includes,
   isEmpty,
   isNil,
   isString,
@@ -67,47 +67,16 @@ const getStreamedResponse = async (
   abortControllerRef: MutableRefObject<AbortController | null>,
   onFinish?: (message: Message) => void,
   onResponse?: (response: Response) => void | Promise<void>,
-  summaryContext?: string,
-  summaryContextMessageId?: string,
 ) => {
   const previousMessages = messagesRef.current;
   mutate(chatRequest.messages, false);
 
   const { messages } = chatRequest;
 
-  const cleanedMessages = filter(
-    messages,
-    (message) => message.role === 'system',
-  );
-
-  const filteredMessages = filter(messages, (message) =>
-    includes(['assistant', 'user'], message.role),
-  );
-
-  let startIndex = 0;
-
-  if (!isNil(summaryContext) && !isNil(summaryContextMessageId)) {
-    const messageIndex = findIndex(filteredMessages, {
-      id: summaryContextMessageId,
-    });
-
-    if (messageIndex !== -1) {
-      startIndex = messageIndex;
-
-      cleanedMessages.push({
-        id: uuid(),
-        role: 'assistant',
-        content: summaryContext,
-      });
-    }
-  }
-
-  cleanedMessages.push(...filteredMessages.slice(startIndex));
-
   const res = await fetch(api, {
     method: 'POST',
     body: JSON.stringify({
-      messages: map(cleanedMessages, ({ role, content }) => ({
+      messages: map(messages, ({ role, content }) => ({
         role,
         content,
       })),
@@ -205,18 +174,13 @@ const useChat = ({
   id,
   initialInput = '',
   initialMessages = [],
-  summaryContext,
-  summaryContextMessageId,
   credentials,
   headers,
   body,
   onResponse,
   onFinish,
   onError,
-}: UseChatOptions & {
-  summaryContext?: string;
-  summaryContextMessageId?: string;
-} = {}): UseChatHelpers => {
+}: UseChatOptions = {}): UseChatHelpers => {
   const hookId = useId();
   const chatId = id || hookId;
 
@@ -277,8 +241,6 @@ const useChat = ({
           abortControllerRef,
           onFinish,
           onResponse,
-          summaryContext,
-          summaryContextMessageId,
         );
 
         abortControllerRef.current = null;
@@ -300,16 +262,7 @@ const useChat = ({
 
       return null;
     },
-    [
-      api,
-      mutate,
-      mutateLoading,
-      onError,
-      onFinish,
-      onResponse,
-      summaryContext,
-      summaryContextMessageId,
-    ],
+    [api, mutate, mutateLoading, onError, onFinish, onResponse],
   );
 
   const append = useCallback(

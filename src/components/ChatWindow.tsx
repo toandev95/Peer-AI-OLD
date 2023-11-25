@@ -3,7 +3,6 @@
 import _, {
   cloneDeep,
   filter,
-  findIndex,
   head,
   includes,
   isEmpty,
@@ -147,7 +146,6 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
   const getChatById = useChatStore((state) => state.getChatById);
   const updateChatTitle = useChatStore((state) => state.updateChatTitle);
   const updateChatInput = useChatStore((state) => state.updateChatInput);
-  const updateChatSummary = useChatStore((state) => state.updateChatSummary);
   const updateChatSettings = useChatStore((state) => state.updateChatSettings);
   const syncMessages = useChatStore((state) => state.syncMessages);
 
@@ -206,70 +204,6 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
     }
   };
 
-  const handleSummaryChat = async (lastMessage: IChatMessage) => {
-    const chat = getChatById(id);
-
-    let startIndex = 0;
-
-    if (!isNil(chat.contextSummaryMessageId)) {
-      const messageIndex = findIndex(chat.messages, {
-        id: chat.contextSummaryMessageId,
-      });
-
-      if (messageIndex !== -1) {
-        startIndex = messageIndex;
-      }
-    }
-
-    const filteredMessages = _(chat.messages)
-      .slice(startIndex)
-      .filter((message) =>
-        includes(['system', 'assistant', 'user'], message.role),
-      )
-      .value();
-
-    const numOfMessages = _(filteredMessages)
-      .map((m) => m.content.length)
-      .sum();
-
-    if (numOfMessages < configStore.messageCompressionThreshold) {
-      return;
-    }
-
-    try {
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        body: JSON.stringify({
-          openAIKey: emptyToUndefined(configStore.openAIKey),
-          openAIEndpoint: emptyToUndefined(configStore.openAIEndpoint),
-          messages: [
-            ...filteredMessages,
-            {
-              role: 'user',
-              content: `Summarize the discussion briefly in 200 words or less to use as a clue for context later.`,
-            },
-          ],
-          streaming: false,
-        }),
-        headers: {
-          ...(!isNil(emptyToUndefined(configStore.accessCode))
-            ? { Authorization: `Bearer ${configStore.accessCode}` }
-            : {}),
-        },
-      });
-
-      if (!res.ok) {
-        const message = await res.text();
-        throw new Error(message);
-      }
-
-      const content = await res.text();
-      updateChatSummary(chat.id, content, lastMessage.id);
-    } catch (err) {
-      /* empty */
-    }
-  };
-
   const {
     isLoading,
     input,
@@ -285,11 +219,10 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
     id: currentChat.id,
     initialInput: currentChat.input,
     initialMessages: currentChat.messages,
-    summaryContext: currentChat.contextSummary,
-    summaryContextMessageId: currentChat.contextSummaryMessageId,
     body: {
       openAIKey: emptyToUndefined(configStore.openAIKey),
       openAIEndpoint: emptyToUndefined(configStore.openAIEndpoint),
+      maxTokenLimit: configStore.messageCompressionThreshold,
       ...currentChat.settings,
       streaming: true,
     },
@@ -298,7 +231,7 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
         ? { Authorization: `Bearer ${configStore.accessCode}` }
         : {}),
     },
-    onFinish: async (lastMessage) => {
+    onFinish: async () => {
       await new Promise((resolve) => {
         setTimeout(resolve, 200);
       });
@@ -306,8 +239,6 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
       if (configStore.autoGenerateTitle) {
         handleGenerateTitle();
       }
-
-      handleSummaryChat(lastMessage);
     },
   });
 
@@ -430,8 +361,6 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
           (message) => message.role === 'system' || message.isPinned === true,
         );
         setMessages(newMessages);
-
-        updateChatSummary(currentChat.id, undefined, undefined);
       },
     });
   };

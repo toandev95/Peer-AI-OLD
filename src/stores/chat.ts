@@ -27,7 +27,6 @@ type ChatAction = {
   getChatById: (id: string) => IChat;
   updateChatTitle: (id: string, title: string) => void;
   updateChatInput: (id: string, input?: string) => void;
-  updateChatSummary: (id: string, summary?: string, messageId?: string) => void;
   updateChatSettings: (id: string, settings: Partial<IChatSetting>) => void;
   removeChat: (id: string) => void;
   syncMessages: (id: string, messages: IChatMessage[]) => void;
@@ -91,19 +90,6 @@ const useChatStore = create<ChatState & ChatAction>()(
         set((state) => ({
           chats: map(state.chats, (chat) =>
             chat.id === id ? { ...chat, input } : chat,
-          ),
-        })),
-
-      updateChatSummary: (id, summary, messageId) =>
-        set((state) => ({
-          chats: map(state.chats, (chat) =>
-            chat.id === id
-              ? {
-                  ...chat,
-                  contextSummary: summary,
-                  contextSummaryMessageId: messageId,
-                }
-              : chat,
           ),
         })),
 

@@ -3,7 +3,10 @@ import { StreamingTextResponse } from 'ai';
 import { initializeAgentExecutorWithOptions } from 'langchain/agents';
 import { ChatOpenAI } from 'langchain/chat_models/openai';
 import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
-import { BufferMemory, ChatMessageHistory } from 'langchain/memory';
+import {
+  ChatMessageHistory,
+  ConversationSummaryBufferMemory,
+} from 'langchain/memory';
 import {
   AIMessage,
   ChatMessage,
@@ -94,6 +97,7 @@ export async function POST(
     presencePenalty,
     plugins,
     streaming,
+    maxTokenLimit,
   } = body as {
     openAIKey?: string;
     openAIEndpoint?: string;
@@ -105,6 +109,7 @@ export async function POST(
     presencePenalty: number;
     plugins: ChatPlugin[];
     streaming?: boolean;
+    maxTokenLimit?: number;
   };
 
   const llm = new ChatOpenAI(
@@ -118,6 +123,8 @@ export async function POST(
       presencePenalty,
       streaming,
       maxConcurrency: 5,
+      cache: true,
+      verbose: true,
     },
     { baseURL: openAIEndpoint || process.env.OPENAI_API_URL },
   );
@@ -132,7 +139,9 @@ export async function POST(
 
   const chatHistory = new ChatMessageHistory(previousMessages);
 
-  const memory = new BufferMemory({
+  const memory = new ConversationSummaryBufferMemory({
+    llm,
+    maxTokenLimit: maxTokenLimit || 1000,
     memoryKey: 'chat_history',
     chatHistory,
     returnMessages: true,
