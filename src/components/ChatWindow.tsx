@@ -245,6 +245,14 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
           openAIKey: emptyToUndefined(configStore.openAIKey),
           openAIEndpoint: emptyToUndefined(configStore.openAIEndpoint),
           messages: [
+            ...(!isNil(chat.contextSummary)
+              ? [
+                  {
+                    role: 'assistant',
+                    content: chat.contextSummary,
+                  },
+                ]
+              : []),
             ...filteredMessages,
             {
               role: 'user',
