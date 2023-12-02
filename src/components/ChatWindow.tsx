@@ -433,6 +433,8 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
           (message) => message.role === 'system' || message.isPinned === true,
         );
         setMessages(newMessages);
+
+        updateChatSummary(currentChat.id, undefined, undefined);
       },
     });
   };
