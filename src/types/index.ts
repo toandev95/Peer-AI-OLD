@@ -28,13 +28,13 @@ type IChat = {
   input?: string;
   mask?: IMask;
   isTitleGenerated?: boolean;
-  attachments?: any[]; // It will be used in the future
+  contextSummary?: string;
+  contextSummaryMessageId?: string;
 };
 
 type IChatMessage = Message & {
   tools?: IAgentAction[];
   isPinned?: boolean;
-  attachments?: any[]; // It will be used in the future
 };
 
 type IChatSetting = {

@@ -83,6 +83,27 @@ const getModelNameByModelID = (id: string): string => {
   }
 };
 
+const tokenizer = (text: string): number => {
+  let length = 0;
+
+  // eslint-disable-next-line no-plusplus
+  for (let i = 0; i < text.length; i++) {
+    const charCode = text.charCodeAt(i);
+
+    if (charCode < 128) {
+      if (charCode <= 122 && charCode >= 65) {
+        length += 0.25;
+      } else {
+        length += 0.5;
+      }
+    } else {
+      length += 1.5;
+    }
+  }
+
+  return length;
+};
+
 export {
   auth,
   cn,
@@ -90,6 +111,7 @@ export {
   getModelNameByModelID,
   isJSON,
   isTrue,
+  tokenizer,
   truncate,
   uuid,
 };

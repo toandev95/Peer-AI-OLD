@@ -6,6 +6,7 @@ import _, { isEmpty, isNil } from 'lodash';
 import moment from 'moment';
 import type { ChangeEvent } from 'react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { IconType } from 'react-icons';
 import { IoTrashOutline } from 'react-icons/io5';
 import {
@@ -66,6 +67,8 @@ const EditChatMessageButton = ({
   value: string;
   onChange: (newContent: string) => void;
 }) => {
+  const { t } = useTranslation();
+
   const [open, setOpen] = useState<boolean>(false);
   const [newContent, setNewContent] = useState<string>(value);
 
@@ -85,15 +88,15 @@ const EditChatMessageButton = ({
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit Message</DialogTitle>
+          <DialogTitle>{t('chatWindow.editMessageContent.title')}</DialogTitle>
           <DialogDescription>
-            Edit the content of the sent message.
+            {t('chatWindow.editMessageContent.subtitle')}
           </DialogDescription>
         </DialogHeader>
         <form className="flex flex-col items-end gap-4" onSubmit={handleSubmit}>
           <TextareaAutosize
             defaultValue={newContent}
-            placeholder="Conversation name"
+            placeholder={t('chatWindow.editMessageContent.placeholder')}
             className="block w-full resize-none overscroll-contain rounded-lg border bg-background px-3 py-2.5 outline-none scrollbar scrollbar-thumb-accent-foreground/30 scrollbar-thumb-rounded-full scrollbar-w-[3px] placeholder:text-foreground"
             spellCheck={false}
             minRows={3}
@@ -105,7 +108,7 @@ const EditChatMessageButton = ({
             disabled={isEmpty(newContent)}
             onClick={() => onChange(newContent)}
           >
-            Save
+            {t('chatWindow.editMessageContent.save')}
           </Button>
         </form>
       </DialogContent>

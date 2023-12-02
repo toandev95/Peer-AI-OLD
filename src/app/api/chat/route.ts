@@ -3,10 +3,7 @@ import { StreamingTextResponse } from 'ai';
 import { initializeAgentExecutorWithOptions } from 'langchain/agents';
 import { ChatOpenAI } from 'langchain/chat_models/openai';
 import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
-import {
-  ChatMessageHistory,
-  ConversationSummaryBufferMemory,
-} from 'langchain/memory';
+import { BufferMemory, ChatMessageHistory } from 'langchain/memory';
 import {
   AIMessage,
   ChatMessage,
@@ -97,7 +94,7 @@ export async function POST(
     presencePenalty,
     plugins,
     streaming,
-    maxTokenLimit,
+    language,
   } = body as {
     openAIKey?: string;
     openAIEndpoint?: string;
@@ -109,7 +106,7 @@ export async function POST(
     presencePenalty: number;
     plugins: ChatPlugin[];
     streaming?: boolean;
-    maxTokenLimit?: number;
+    language?: string;
   };
 
   const llm = new ChatOpenAI(
@@ -124,7 +121,7 @@ export async function POST(
       streaming,
       maxConcurrency: 5,
       cache: true,
-      verbose: true,
+      // verbose: true,
     },
     { baseURL: openAIEndpoint || process.env.OPENAI_API_URL },
   );
@@ -139,9 +136,7 @@ export async function POST(
 
   const chatHistory = new ChatMessageHistory(previousMessages);
 
-  const memory = new ConversationSummaryBufferMemory({
-    llm,
-    maxTokenLimit: maxTokenLimit || 1000,
+  const memory = new BufferMemory({
     memoryKey: 'chat_history',
     chatHistory,
     returnMessages: true,
@@ -186,7 +181,8 @@ export async function POST(
       prefix: `You are PeerAI, a large language model trained by OpenAI.
       Knowledge was cut off at the time of October 2021.
       The current model: ${model}.
-      The current time: ${moment().format('LLLL')}.`,
+      The current time: ${moment().format('LLLL')}.
+      User interface language: ${language || 'en'}.`,
     },
     memory,
     verbose: false,

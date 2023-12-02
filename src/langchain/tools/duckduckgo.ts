@@ -66,7 +66,7 @@ class DuckDuckGo extends Tool {
 
       const results = await vectorStore.similaritySearch(
         input,
-        4,
+        1,
         undefined,
         runManager?.getChild('vectorstore'),
       );

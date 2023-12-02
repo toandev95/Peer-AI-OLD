@@ -88,6 +88,12 @@
       "placeholder": "Tên cuộc trò chuyện",
       "save": "Lưu"
     },
+    "editMessageContent": {
+      "title": "Sửa Tin Nhắn",
+      "subtitle": "Sửa nội dung tin nhắn này.",
+      "placeholder": "Nội dung tin nhắn",
+      "save": "Lưu"
+    },
     "toolbar": {
       "prompts": "Lời Nhắc",
       "plugins": "Plugin",

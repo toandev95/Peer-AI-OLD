@@ -88,6 +88,12 @@
       "placeholder": "Conversation name",
       "save": "Save"
     },
+    "editMessageContent": {
+      "title": "Edit Message",
+      "subtitle": "Edit the content of this message.",
+      "placeholder": "Message content",
+      "save": "Save"
+    },
     "toolbar": {
       "prompts": "Prompts",
       "plugins": "Plugins",

@@ -3,6 +3,7 @@
 import _, {
   cloneDeep,
   filter,
+  findIndex,
   head,
   includes,
   isEmpty,
@@ -39,10 +40,12 @@ import {
   useChatScrollAnchor,
   useEnterSubmit,
 } from '@/hooks';
+import i18n from '@/i18n';
 import {
   emptyToUndefined,
   getModelNameByModelID,
   isTrue,
+  tokenizer,
   uuid,
 } from '@/lib/helpers';
 import { useChatStore, useConfigStore, usePromptStore } from '@/stores';
@@ -147,6 +150,7 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
   const updateChatTitle = useChatStore((state) => state.updateChatTitle);
   const updateChatInput = useChatStore((state) => state.updateChatInput);
   const updateChatSettings = useChatStore((state) => state.updateChatSettings);
+  const updateChatSummary = useChatStore((state) => state.updateChatSummary);
   const syncMessages = useChatStore((state) => state.syncMessages);
 
   const currentChat = getChatById(id);
@@ -204,6 +208,70 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
     }
   };
 
+  const handleGenerateSummary = async (lastMessage: IChatMessage) => {
+    const chat = getChatById(id);
+
+    let startIndex = 0;
+
+    if (!isNil(chat.contextSummaryMessageId)) {
+      const messageIndex = findIndex(chat.messages, {
+        id: chat.contextSummaryMessageId,
+      });
+
+      if (messageIndex !== -1) {
+        startIndex = messageIndex;
+      }
+    }
+
+    const filteredMessages = _(chat.messages)
+      .slice(startIndex)
+      .filter((message) =>
+        includes(['system', 'assistant', 'user'], message.role),
+      )
+      .value();
+
+    const numOfMessages = _(filteredMessages)
+      .map((m) => tokenizer(m.content))
+      .sum();
+
+    if (numOfMessages < configStore.messageCompressionThreshold) {
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        body: JSON.stringify({
+          openAIKey: emptyToUndefined(configStore.openAIKey),
+          openAIEndpoint: emptyToUndefined(configStore.openAIEndpoint),
+          messages: [
+            ...filteredMessages,
+            {
+              role: 'user',
+              content: `Summarize the discussion briefly in 200 words or less to use as a clue for context later.`,
+            },
+          ],
+          streaming: false,
+        }),
+        headers: {
+          ...(!isNil(emptyToUndefined(configStore.accessCode))
+            ? { Authorization: `Bearer ${configStore.accessCode}` }
+            : {}),
+        },
+      });
+
+      if (!res.ok) {
+        const message = await res.text();
+        throw new Error(message);
+      }
+
+      const content = await res.text();
+      updateChatSummary(chat.id, content, lastMessage.id);
+    } catch (err) {
+      /* empty */
+    }
+  };
+
   const {
     isLoading,
     input,
@@ -219,10 +287,12 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
     id: currentChat.id,
     initialInput: currentChat.input,
     initialMessages: currentChat.messages,
+    summaryContext: currentChat.contextSummary,
+    summaryContextMessageId: currentChat.contextSummaryMessageId,
     body: {
       openAIKey: emptyToUndefined(configStore.openAIKey),
       openAIEndpoint: emptyToUndefined(configStore.openAIEndpoint),
-      maxTokenLimit: configStore.messageCompressionThreshold,
+      language: i18n.language,
       ...currentChat.settings,
       streaming: true,
     },
@@ -231,7 +301,7 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
         ? { Authorization: `Bearer ${configStore.accessCode}` }
         : {}),
     },
-    onFinish: async () => {
+    onFinish: async (message: IChatMessage) => {
       await new Promise((resolve) => {
         setTimeout(resolve, 200);
       });
@@ -239,6 +309,8 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
       if (configStore.autoGenerateTitle) {
         handleGenerateTitle();
       }
+
+      handleGenerateSummary(message);
     },
   });
 
