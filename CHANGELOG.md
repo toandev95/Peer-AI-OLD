@@ -1,3 +1,10 @@
+## [1.4.1](https://github.com/toandev95/Peer-AI/compare/v1.4.0...v1.4.1) (2023-12-02)
+
+
+### Bug Fixes
+
+* chat summary ([81bf438](https://github.com/toandev95/Peer-AI/commit/81bf438fc5e828daeba0d5c5d7f63793eebbbbd5))
+
 # [1.4.0](https://github.com/toandev95/Peer-AI/compare/v1.3.1...v1.4.0) (2023-11-24)
 
 
