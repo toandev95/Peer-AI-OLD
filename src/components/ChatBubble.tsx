@@ -152,11 +152,8 @@ const ChatBubble = ({
       case 'dall-e':
         return '🌄 DALL·E 3';
 
-      case 'requests_get':
-        return '🛜 Web Render (GET)';
-
-      case 'requests_post':
-        return '🛜 Web Render (POST)';
+      case 'web-browser':
+        return '🌐 Web Browser';
 
       default:
         return tool;

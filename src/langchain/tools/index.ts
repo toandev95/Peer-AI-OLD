@@ -1,2 +1,2 @@
-export * from './duckduckgo';
 export * from './pdf-reader';
+export * from './search';

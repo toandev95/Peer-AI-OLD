@@ -11,11 +11,7 @@ import {
   SystemMessage,
 } from 'langchain/schema';
 import type { Tool } from 'langchain/tools';
-import {
-  RequestsGetTool,
-  RequestsPostTool,
-  WikipediaQueryRun,
-} from 'langchain/tools';
+import { WikipediaQueryRun } from 'langchain/tools';
 import { Calculator } from 'langchain/tools/calculator';
 import _, { filter, includes, isEmpty, isNil, last, startsWith } from 'lodash';
 import moment from 'moment';
@@ -24,8 +20,9 @@ import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
 import { LangChainStream } from '@/langchain';
-import { DuckDuckGo, PDFReader } from '@/langchain/tools';
+import { GoogleSearch, PDFReader } from '@/langchain/tools';
 import { DallE } from '@/langchain/tools/dall-e';
+import { WebBrowser } from '@/langchain/tools/webbrowser';
 import { auth, isTrue } from '@/lib/helpers';
 import type { IChatMessage } from '@/types';
 import { ChatPlugin } from '@/types';
@@ -146,7 +143,7 @@ export async function POST(
   const tools: Tool[] = [new Calculator()];
 
   if (includes(plugins, ChatPlugin.Search)) {
-    tools.push(new DuckDuckGo(embeddings));
+    tools.push(new GoogleSearch(embeddings, process.env.BROWSER_URL as string));
   }
 
   if (includes(plugins, ChatPlugin.Wikipedia)) {
@@ -154,8 +151,7 @@ export async function POST(
   }
 
   if (includes(plugins, ChatPlugin.WebReader)) {
-    tools.push(new RequestsGetTool());
-    tools.push(new RequestsPostTool());
+    tools.push(new WebBrowser(embeddings, process.env.BROWSER_URL as string));
   }
 
   if (includes(plugins, ChatPlugin.PDFReader)) {
@@ -185,7 +181,7 @@ export async function POST(
       User interface language: ${language || 'en'}.`,
     },
     memory,
-    verbose: false,
+    verbose: true,
   });
 
   if (!streaming) {

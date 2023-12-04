@@ -1,4 +1,3 @@
-import { SafeSearchType, search } from 'duck-duck-scrape';
 import { htmlToText } from 'html-to-text';
 import type { CallbackManagerForToolRun } from 'langchain/callbacks';
 import { Document } from 'langchain/document';
@@ -6,21 +5,24 @@ import type { Embeddings } from 'langchain/embeddings/base';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { Tool } from 'langchain/tools';
 import { MemoryVectorStore } from 'langchain/vectorstores/memory';
-import _ from 'lodash';
+import _, { isEmpty, isNil } from 'lodash';
 
 /**
- * A tool that uses DuckDuckGo to search for information on the internet.
+ * A tool that uses Google to search for information on the internet.
  *
  * @author Toan Doan
  */
 
-class DuckDuckGo extends Tool {
+class GoogleSearch extends Tool {
   public name: string = 'search';
 
   public description: string = `A useful online search engine when you need to answer questions about real-time events or recent events on the internet.
   The input should be a search query.`;
 
-  constructor(private readonly embeddings: Embeddings) {
+  constructor(
+    private readonly embeddings: Embeddings,
+    private readonly browserUrl: string,
+  ) {
     super();
   }
 
@@ -30,22 +32,31 @@ class DuckDuckGo extends Tool {
     runManager?: CallbackManagerForToolRun,
   ): Promise<string> {
     try {
-      const { noResults, results: searchResults } = await search(input, {
-        safeSearch: SafeSearchType.OFF,
-      });
+      const res = await fetch(
+        `${this.browserUrl}/function?stealth=true&ignoreHTTPSErrors=true`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            // eslint-disable-next-line no-template-curly-in-string
+            code: 'module.exports=async({page:e,context:t})=>{let{query:l}=t;await e.goto(`https://www.google.com/search?q=${l}`,{waitUntil:"networkidle2"});let r=await e.evaluate(()=>{let e=document.querySelector("#center_col").querySelectorAll("div > div[jscontroller][lang], div > div[data-ved][lang]"),t=[];return e.forEach(e=>{let l=e.querySelector("a"),r=e.querySelector("h3"),i=e.querySelector(\'div[style^="-webkit-line-clamp"]\');t.push({url:l.getAttribute("href"),title:r.innerText,description:i?i.innerText:null})}),t});return{type:"application/json",data:r}};',
+            context: { query: input },
+          }),
+        },
+      );
 
-      if (noResults) {
+      const searchResults = await res.json();
+
+      if (isNil(searchResults) || isEmpty(searchResults)) {
         return 'No good results found.';
       }
 
       const docs = _(searchResults)
         .map((item) => {
-          const description = htmlToText(item.description);
-
           return new Document({
             pageContent: JSON.stringify({
               title: item.title,
-              description,
+              description: htmlToText(item.description),
               url: item.url,
             }),
             metadata: { source: item.url },
@@ -66,7 +77,7 @@ class DuckDuckGo extends Tool {
 
       const results = await vectorStore.similaritySearch(
         input,
-        1,
+        4,
         undefined,
         runManager?.getChild('vectorstore'),
       );
@@ -78,4 +89,4 @@ class DuckDuckGo extends Tool {
   }
 }
 
-export { DuckDuckGo };
+export { GoogleSearch };

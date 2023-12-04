@@ -9,6 +9,7 @@ const Env = createEnv({
     OPENAI_API_KEY: z.string().startsWith('sk-'),
     OPENAI_API_URL: z.string().url().optional(),
     OPENAI_DALLE_ENABLED: z.enum(['true', 'false']).optional().default('false'),
+    BROWSER_URL: z.string().url(),
   },
   client: {
     NEXT_PUBLIC_OPENAI_DALLE_ENABLED: z
@@ -23,6 +24,7 @@ const Env = createEnv({
     OPENAI_DALLE_ENABLED: process.env.OPENAI_DALLE_ENABLED,
     NEXT_PUBLIC_OPENAI_DALLE_ENABLED:
       process.env.NEXT_PUBLIC_OPENAI_DALLE_ENABLED,
+    BROWSER_URL: process.env.BROWSER_URL,
   },
 });
 

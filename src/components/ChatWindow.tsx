@@ -442,7 +442,7 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
         );
         setMessages(newMessages);
 
-        updateChatSummary(currentChat.id, undefined, undefined);
+        updateChatSummary(currentChat.id);
       },
     });
   };
@@ -477,6 +477,10 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
   const handleRemoveMessage = (message: IChatMessage) => {
     const newMessages = filter(messages, (msg) => msg.id !== message.id);
     setMessages(newMessages);
+
+    if (message.id === currentChat.contextSummaryMessageId) {
+      updateChatSummary(currentChat.id);
+    }
   };
 
   const handlePinMessage = (message: IChatMessage) => {
