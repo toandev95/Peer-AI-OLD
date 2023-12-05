@@ -1,4 +1,3 @@
-import { htmlToText } from 'html-to-text';
 import type { CallbackManagerForToolRun } from 'langchain/callbacks';
 import { Document } from 'langchain/document';
 import type { Embeddings } from 'langchain/embeddings/base';
@@ -45,18 +44,18 @@ class WebBrowser extends Tool {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            code: 'module.exports=async({page:t,context:a})=>{let{url:e}=a;await t.goto(e,{waitUntil:"networkidle2"});let i=await t.evaluate(()=>document.body.innerHTML);return{type:"application/html",data:i}};',
+            code: 'module.exports=async({page:t,context:a})=>{let{url:e}=a;await t.goto(e,{waitUntil:"networkidle2"});let i=await t.evaluate(()=>document.body.innerText);return{type:"text/plain",data:i}};',
             context: { url },
           }),
           redirect: 'follow',
         },
       );
 
-      const text = await res.text();
+      const rawText = await res.text();
 
       const docs: Document[] = [
         new Document({
-          pageContent: htmlToText(text),
+          pageContent: rawText,
           metadata: { source: url },
         }),
       ];
