@@ -32,20 +32,22 @@ class GoogleSearch extends Tool {
     runManager?: CallbackManagerForToolRun,
   ): Promise<string> {
     try {
-      const res = await fetch(
-        `${this.browserUrl}/function?stealth=true&ignoreHTTPSErrors=true`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            // eslint-disable-next-line no-template-curly-in-string
-            code: 'module.exports=async({page:e,context:t})=>{let{query:l}=t;await e.goto(`https://www.google.com/search?q=${l}`,{waitUntil:"networkidle2"});let r=await e.evaluate(()=>{let e=document.querySelector("#center_col").querySelectorAll("div > div[jscontroller][lang], div > div[data-ved][lang]"),t=[];return e.forEach(e=>{let l=e.querySelector("a"),r=e.querySelector("h3"),i=e.querySelector(\'div[style^="-webkit-line-clamp"]\');t.push({url:l.getAttribute("href"),title:r.innerText,description:i?i.innerText:null})}),t});return{type:"application/json",data:r}};',
-            context: { query: input },
-          }),
-        },
-      );
+      const res = await fetch(`${this.browserUrl}/function?stealth=true`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          // eslint-disable-next-line no-template-curly-in-string
+          code: 'module.exports=async({page:e,context:t})=>{let{query:l}=t;await e.goto(`https://www.google.com/search?q=${l}`,{waitUntil:"networkidle2"});let r=await e.evaluate(()=>{let e=document.querySelector("#center_col").querySelectorAll("div > div[jscontroller][lang], div > div[data-ved][lang]"),t=[];return e.forEach(e=>{let l=e.querySelector("a"),r=e.querySelector("h3"),i=e.querySelector(\'div[style^="-webkit-line-clamp"]\');t.push({url:l.getAttribute("href"),title:r.innerText,description:i?i.innerText:null})}),t});return{type:"application/json",data:r}};',
+          context: { query: encodeURIComponent(input) },
+        }),
+        redirect: 'follow',
+      });
 
-      const searchResults = await res.json();
+      const searchResults = (await res.json()) as {
+        url: string;
+        title: string;
+        description?: string;
+      }[];
 
       if (isNil(searchResults) || isEmpty(searchResults)) {
         return 'No good results found.';
@@ -56,7 +58,9 @@ class GoogleSearch extends Tool {
           return new Document({
             pageContent: JSON.stringify({
               title: item.title,
-              description: htmlToText(item.description),
+              description: !isNil(item.description)
+                ? htmlToText(item.description)
+                : null,
               url: item.url,
             }),
             metadata: { source: item.url },
@@ -84,6 +88,9 @@ class GoogleSearch extends Tool {
 
       return results.map((r) => r.pageContent).join('\n');
     } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error(e);
+
       return (e as Error).toString();
     }
   }

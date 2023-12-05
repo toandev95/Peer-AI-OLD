@@ -48,14 +48,15 @@ class WebBrowser extends Tool {
             code: 'module.exports=async({page:t,context:a})=>{let{url:e}=a;await t.goto(e,{waitUntil:"networkidle2"});let i=await t.evaluate(()=>document.body.innerHTML);return{type:"application/html",data:i}};',
             context: { url },
           }),
+          redirect: 'follow',
         },
       );
 
-      const html = await res.text();
+      const text = await res.text();
 
       const docs: Document[] = [
         new Document({
-          pageContent: htmlToText(html),
+          pageContent: htmlToText(text),
           metadata: { source: url },
         }),
       ];
@@ -80,6 +81,9 @@ class WebBrowser extends Tool {
 
       return results.map((r) => r.pageContent).join('\n');
     } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error(e);
+
       return (e as Error).toString();
     }
   }
