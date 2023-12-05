@@ -1,3 +1,16 @@
+## [1.4.2](https://github.com/toandev95/Peer-AI/compare/v1.4.1...v1.4.2) (2023-12-05)
+
+
+### Bug Fixes
+
+* search & webbrowser ([4352f95](https://github.com/toandev95/Peer-AI/commit/4352f95ba79651d320758f9360f5e5a0e3f8e539))
+* webbrowser ([9d334bd](https://github.com/toandev95/Peer-AI/commit/9d334bda8fcb01867f616dbf282696bfac3292c9))
+
+
+### Performance Improvements
+
+* stronger internet access ([db03644](https://github.com/toandev95/Peer-AI/commit/db036445cb59a4ee4ddb843716ce8119c657acbb))
+
 ## [1.4.1](https://github.com/toandev95/Peer-AI/compare/v1.4.0...v1.4.1) (2023-12-02)
 
 
