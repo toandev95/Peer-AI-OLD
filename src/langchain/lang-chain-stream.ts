@@ -2,7 +2,7 @@ import type { AIStreamCallbacksAndOptions } from 'ai';
 import { createCallbacksTransformer } from 'ai';
 import { BaseCallbackHandler } from 'langchain/callbacks';
 import type { AgentAction } from 'langchain/schema';
-import { isEmpty, pick } from 'lodash';
+import { pick } from 'lodash';
 
 const LangChainStream = (callbacks?: AIStreamCallbacksAndOptions) => {
   const stream = new TransformStream();
@@ -41,17 +41,16 @@ const LangChainStream = (callbacks?: AIStreamCallbacksAndOptions) => {
           `${JSON.stringify({ data: pick(action, ['tool', 'toolInput']) })}\n`,
         );
       },
+      handleAgentEnd: async (_output: any, runId: string) => {
+        await handleEnd(runId);
+      },
 
       handleLLMNewToken: async (token: string) => {
-        if (isEmpty(token)) {
-          return;
-        }
-
         await writer.ready;
         await writer.write(`${JSON.stringify({ data: token })}\n`);
       },
       handleLLMStart: async (_llm: any, _prompts: string[], runId: string) => {
-        handleStart(runId);
+        await handleStart(runId);
       },
       handleLLMEnd: async (_output: any, runId: string) => {
         await handleEnd(runId);
@@ -61,7 +60,7 @@ const LangChainStream = (callbacks?: AIStreamCallbacksAndOptions) => {
       },
 
       handleChainStart: async (_chain: any, _inputs: any, runId: string) => {
-        handleStart(runId);
+        await handleStart(runId);
       },
       handleChainEnd: async (_outputs: any, runId: string) => {
         await handleEnd(runId);
@@ -71,7 +70,7 @@ const LangChainStream = (callbacks?: AIStreamCallbacksAndOptions) => {
       },
 
       handleToolStart: async (_tool: any, _input: string, runId: string) => {
-        handleStart(runId);
+        await handleStart(runId);
       },
       handleToolEnd: async (_output: string, runId: string) => {
         await handleEnd(runId);

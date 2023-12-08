@@ -39,6 +39,7 @@ class GoogleSearch extends Tool {
           code: 'module.exports=async({page:e,context:t})=>{let{query:l}=t;await e.goto(`https://www.google.com/search?q=${l}`,{waitUntil:"networkidle2"});let r=await e.evaluate(()=>{let e=document.querySelector("#center_col").querySelectorAll("div > div[jscontroller][lang], div > div[data-ved][lang]"),t=[];return e.forEach(e=>{let l=e.querySelector("a"),r=e.querySelector("h3"),i=e.querySelector(\'div[style^="-webkit-line-clamp"]\');t.push({url:l.getAttribute("href"),title:r.innerText.trim(),description:i?i.innerText.trim():null})}),t});return{type:"application/json",data:r}};',
           context: { query: encodeURIComponent(input) },
         }),
+        signal: AbortSignal.timeout(30_000),
       });
 
       if (!res.ok) {

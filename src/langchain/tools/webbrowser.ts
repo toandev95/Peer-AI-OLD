@@ -47,6 +47,7 @@ class WebBrowser extends Tool {
             url,
             elements: [{ selector: 'body' }],
           }),
+          signal: AbortSignal.timeout(30_000),
         },
       );
 
@@ -59,7 +60,7 @@ class WebBrowser extends Tool {
       };
 
       if (data.length === 0 || data[0]!.results.length === 0) {
-        return 'Cannot scrape data from this website.';
+        return 'No data found.';
       }
 
       const docs: Document[] = [
