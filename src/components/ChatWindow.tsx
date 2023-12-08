@@ -645,13 +645,14 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
                 plugin={ChatPlugin.WebReader}
                 onCheckedChange={handlePluginChange}
               />
-              <ToolbarPluginItem
+              {/* <ToolbarPluginItem
                 title={t('chatWindow.toolbarPlugins.pdfReader.title')}
                 subtitle={t('chatWindow.toolbarPlugins.pdfReader.subtitle')}
                 values={currentChat.settings.plugins}
                 plugin={ChatPlugin.PDFReader}
                 onCheckedChange={handlePluginChange}
-              />
+                disabled
+              /> */}
               {isDallEEnabled && (
                 <ToolbarPluginItem
                   title={t('chatWindow.toolbarPlugins.dalle.title')}

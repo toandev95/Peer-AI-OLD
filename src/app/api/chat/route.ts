@@ -20,7 +20,7 @@ import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
 import { LangChainStream } from '@/langchain';
-import { GoogleSearch, PDFReader } from '@/langchain/tools';
+import { GoogleSearch } from '@/langchain/tools';
 import { DallE } from '@/langchain/tools/dall-e';
 import { WebBrowser } from '@/langchain/tools/webbrowser';
 import { auth, isTrue } from '@/lib/helpers';
@@ -118,7 +118,6 @@ export async function POST(
       streaming,
       maxConcurrency: 5,
       cache: true,
-      // verbose: true,
     },
     { baseURL: openAIEndpoint || process.env.OPENAI_API_URL },
   );
@@ -143,7 +142,9 @@ export async function POST(
   const tools: Tool[] = [new Calculator()];
 
   if (includes(plugins, ChatPlugin.Search)) {
-    tools.push(new GoogleSearch(embeddings, process.env.BROWSER_URL as string));
+    tools.push(
+      new GoogleSearch(embeddings, process.env.BROWSERLESS_URL as string),
+    );
   }
 
   if (includes(plugins, ChatPlugin.Wikipedia)) {
@@ -151,12 +152,14 @@ export async function POST(
   }
 
   if (includes(plugins, ChatPlugin.WebReader)) {
-    tools.push(new WebBrowser(embeddings, process.env.BROWSER_URL as string));
+    tools.push(
+      new WebBrowser(embeddings, process.env.BROWSERLESS_URL as string),
+    );
   }
 
-  if (includes(plugins, ChatPlugin.PDFReader)) {
-    tools.push(new PDFReader(embeddings));
-  }
+  // if (includes(plugins, ChatPlugin.PDFReader)) {
+  //   tools.push(new PDFReader(embeddings));
+  // }
 
   if (
     isTrue(process.env.OPENAI_DALLE_ENABLED) &&
@@ -181,7 +184,7 @@ export async function POST(
       User interface language: ${language || 'en'}.`,
     },
     memory,
-    verbose: true,
+    // verbose: true,
   });
 
   if (!streaming) {

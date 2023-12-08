@@ -160,6 +160,21 @@ const ChatBubble = ({
     }
   };
 
+  const getToolInput = (tool: IAgentAction['tool'], input: string) => {
+    switch (tool) {
+      case 'web-browser':
+        return _(input)
+          .split(',')
+          .map((s) => s.trim())
+          .filter((s) => !isEmpty(s))
+          .reverse()
+          .join(' → ');
+
+      default:
+        return input;
+    }
+  };
+
   return (
     <FadeIn
       className={cn(
@@ -222,7 +237,7 @@ const ChatBubble = ({
                 {!isEmpty(toolInput.input) ? (
                   <>
                     <span className="font-medium">{getToolName(tool)}</span>:{' '}
-                    {toolInput.input}
+                    {getToolInput(tool, toolInput.input)}
                   </>
                 ) : (
                   <span className="font-medium">{getToolName(tool)}</span>

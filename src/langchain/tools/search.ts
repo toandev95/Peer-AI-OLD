@@ -1,4 +1,3 @@
-import { htmlToText } from 'html-to-text';
 import type { CallbackManagerForToolRun } from 'langchain/callbacks';
 import { Document } from 'langchain/document';
 import type { Embeddings } from 'langchain/embeddings/base';
@@ -21,7 +20,7 @@ class GoogleSearch extends Tool {
 
   constructor(
     private readonly embeddings: Embeddings,
-    private readonly browserUrl: string,
+    private readonly browserlessUrl: string,
   ) {
     super();
   }
@@ -32,35 +31,36 @@ class GoogleSearch extends Tool {
     runManager?: CallbackManagerForToolRun,
   ): Promise<string> {
     try {
-      const res = await fetch(`${this.browserUrl}/function?stealth=true`, {
+      const res = await fetch(`${this.browserlessUrl}/function?stealth=true`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           // eslint-disable-next-line no-template-curly-in-string
-          code: 'module.exports=async({page:e,context:t})=>{let{query:l}=t;await e.goto(`https://www.google.com/search?q=${l}`,{waitUntil:"networkidle2"});let r=await e.evaluate(()=>{let e=document.querySelector("#center_col").querySelectorAll("div > div[jscontroller][lang], div > div[data-ved][lang]"),t=[];return e.forEach(e=>{let l=e.querySelector("a"),r=e.querySelector("h3"),i=e.querySelector(\'div[style^="-webkit-line-clamp"]\');t.push({url:l.getAttribute("href"),title:r.innerText,description:i?i.innerText:null})}),t});return{type:"application/json",data:r}};',
+          code: 'module.exports=async({page:e,context:t})=>{let{query:l}=t;await e.goto(`https://www.google.com/search?q=${l}`,{waitUntil:"networkidle2"});let r=await e.evaluate(()=>{let e=document.querySelector("#center_col").querySelectorAll("div > div[jscontroller][lang], div > div[data-ved][lang]"),t=[];return e.forEach(e=>{let l=e.querySelector("a"),r=e.querySelector("h3"),i=e.querySelector(\'div[style^="-webkit-line-clamp"]\');t.push({url:l.getAttribute("href"),title:r.innerText.trim(),description:i?i.innerText.trim():null})}),t});return{type:"application/json",data:r}};',
           context: { query: encodeURIComponent(input) },
         }),
-        redirect: 'follow',
       });
 
-      const searchResults = (await res.json()) as {
+      if (!res.ok) {
+        return 'Something went wrong, please try again.';
+      }
+
+      const data = (await res.json()) as {
         url: string;
         title: string;
         description?: string;
       }[];
 
-      if (isNil(searchResults) || isEmpty(searchResults)) {
+      if (isNil(data) || isEmpty(data)) {
         return 'No good results found.';
       }
 
-      const docs = _(searchResults)
+      const docs = _(data)
         .map((item) => {
           return new Document({
             pageContent: JSON.stringify({
               title: item.title,
-              description: !isNil(item.description)
-                ? htmlToText(item.description)
-                : null,
+              description: !isNil(item.description) ? item.description : null,
               url: item.url,
             }),
             metadata: { source: item.url },
@@ -81,7 +81,7 @@ class GoogleSearch extends Tool {
 
       const results = await vectorStore.similaritySearch(
         input,
-        4,
+        undefined,
         undefined,
         runManager?.getChild('vectorstore'),
       );

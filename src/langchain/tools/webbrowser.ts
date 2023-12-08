@@ -20,7 +20,7 @@ class WebBrowser extends Tool {
 
   constructor(
     private readonly embeddings: Embeddings,
-    private readonly browserUrl: string,
+    private readonly browserlessUrl: string,
   ) {
     super();
   }
@@ -39,23 +39,32 @@ class WebBrowser extends Tool {
       const url = inputs[0] as string;
 
       const res = await fetch(
-        `${this.browserUrl}/function?stealth=true&ignoreHTTPSErrors=true`,
+        `${this.browserlessUrl}/scrape?stealth=true&ignoreHTTPSErrors=true`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            code: 'module.exports=async({page:t,context:a})=>{let{url:e}=a;await t.goto(e,{waitUntil:"networkidle2"});let i=await t.evaluate(()=>document.body.innerText);return{type:"text/plain",data:i}};',
-            context: { url },
+            url,
+            elements: [{ selector: 'body' }],
           }),
-          redirect: 'follow',
         },
       );
 
-      const rawText = await res.text();
+      if (!res.ok) {
+        return 'Something went wrong, please try again.';
+      }
+
+      const { data } = (await res.json()) as {
+        data: { results: { text: string }[] }[];
+      };
+
+      if (data.length === 0 || data[0]!.results.length === 0) {
+        return 'Cannot scrape data from this website.';
+      }
 
       const docs: Document[] = [
         new Document({
-          pageContent: rawText,
+          pageContent: data[0]!.results[0]!.text,
           metadata: { source: url },
         }),
       ];
@@ -73,7 +82,7 @@ class WebBrowser extends Tool {
 
       const results = await vectorStore.similaritySearch(
         inputs[1] || 'a summary',
-        4,
+        undefined,
         undefined,
         runManager?.getChild('vectorstore'),
       );
