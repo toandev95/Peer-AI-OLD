@@ -107,7 +107,7 @@ class PDFReader extends Tool {
 
       const results = await vectorStore.similaritySearch(
         inputs[1] || 'a summary',
-        4,
+        undefined,
         undefined,
         runManager?.getChild('vectorstore'),
       );

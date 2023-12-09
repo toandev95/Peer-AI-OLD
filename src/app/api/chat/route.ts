@@ -10,7 +10,7 @@ import {
   HumanMessage,
   SystemMessage,
 } from 'langchain/schema';
-import type { Tool } from 'langchain/tools';
+import type { StructuredTool } from 'langchain/tools';
 import { WikipediaQueryRun } from 'langchain/tools';
 import { Calculator } from 'langchain/tools/calculator';
 import _, { filter, includes, isEmpty, isNil, last, startsWith } from 'lodash';
@@ -139,12 +139,10 @@ export async function POST(
     outputKey: 'output',
   });
 
-  const tools: Tool[] = [new Calculator()];
+  const tools: StructuredTool[] = [new Calculator()];
 
   if (includes(plugins, ChatPlugin.Search)) {
-    tools.push(
-      new GoogleSearch(embeddings, process.env.BROWSERLESS_URL as string),
-    );
+    tools.push(new GoogleSearch(process.env.BROWSERLESS_URL as string));
   }
 
   if (includes(plugins, ChatPlugin.Wikipedia)) {

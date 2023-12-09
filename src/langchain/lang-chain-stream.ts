@@ -41,9 +41,6 @@ const LangChainStream = (callbacks?: AIStreamCallbacksAndOptions) => {
           `${JSON.stringify({ data: pick(action, ['tool', 'toolInput']) })}\n`,
         );
       },
-      handleAgentEnd: async (_output: any, runId: string) => {
-        await handleEnd(runId);
-      },
 
       handleLLMNewToken: async (token: string) => {
         await writer.ready;

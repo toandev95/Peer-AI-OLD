@@ -2,9 +2,9 @@ import type { CallbackManagerForToolRun } from 'langchain/callbacks';
 import { Document } from 'langchain/document';
 import type { Embeddings } from 'langchain/embeddings/base';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
-import { Tool } from 'langchain/tools';
+import { StructuredTool } from 'langchain/tools';
 import { MemoryVectorStore } from 'langchain/vectorstores/memory';
-import _, { isEmpty } from 'lodash';
+import { z } from 'zod';
 
 /**
  * A tool that uses a web browser to search for information on the internet.
@@ -12,11 +12,22 @@ import _, { isEmpty } from 'lodash';
  * @author Toan Doan
  */
 
-class WebBrowser extends Tool {
+class WebBrowser extends StructuredTool {
+  public schema = z.object({
+    url: z
+      .string()
+      .url()
+      .describe('A valid URL including protocol. Eg: http(s)://domain.com/abc'),
+    task: z
+      .string()
+      .default('summary')
+      .describe('A task to perform on the webpage.'),
+  });
+
   public name: string = 'web-browser';
 
-  public description: string = `A portal to the internet. Use this when you need to find something on or summarize a webpage.
-  The input MUST be a comma-separated list of: "a valid URL including protocol", "what you want to find on the page or empty string for a summary".`;
+  public description: string = `A portal to the internet.
+  Use this when you need to find something on or summarize a webpage.`;
 
   constructor(
     private readonly embeddings: Embeddings,
@@ -27,17 +38,10 @@ class WebBrowser extends Tool {
 
   // eslint-disable-next-line no-underscore-dangle, class-methods-use-this
   public async _call(
-    input: string,
+    { url, task }: { url: string; task: string },
     runManager?: CallbackManagerForToolRun,
   ): Promise<string> {
     try {
-      const inputs = _(input)
-        .split(',')
-        .map((s) => (!isEmpty(s.trim()) ? s.trim() : undefined))
-        .value();
-
-      const url = inputs[0] as string;
-
       const res = await fetch(
         `${this.browserlessUrl}/scrape?stealth=true&ignoreHTTPSErrors=true`,
         {
@@ -82,7 +86,7 @@ class WebBrowser extends Tool {
       );
 
       const results = await vectorStore.similaritySearch(
-        inputs[1] || 'a summary',
+        task,
         undefined,
         undefined,
         runManager?.getChild('vectorstore'),

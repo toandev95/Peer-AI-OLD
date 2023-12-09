@@ -31,18 +31,18 @@ class DallE extends Tool {
         baseURL: this.options.baseUrl,
       });
 
-      const response = await openai.images.generate({
+      const res = await openai.images.generate({
         model: 'dall-e-3',
         prompt: input,
         n: 1,
         size: '1024x1024',
       });
 
-      if (isEmpty(response.data)) {
-        return 'No result.';
+      if (isEmpty(res.data)) {
+        return 'No image generated.';
       }
 
-      return JSON.stringify(response.data.map((item) => item.url));
+      return JSON.stringify(res.data.map((item) => item.url));
     } catch (e) {
       return (e as Error).toString();
     }
