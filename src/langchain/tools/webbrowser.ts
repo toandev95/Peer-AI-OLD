@@ -4,6 +4,7 @@ import type { Embeddings } from 'langchain/embeddings/base';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { StructuredTool } from 'langchain/tools';
 import { MemoryVectorStore } from 'langchain/vectorstores/memory';
+import { isNil } from 'lodash';
 import { z } from 'zod';
 
 /**
@@ -20,8 +21,7 @@ class WebBrowser extends StructuredTool {
       .describe('A valid URL including protocol. Eg: http(s)://domain.com/abc'),
     task: z
       .string()
-      .default('summary')
-      .describe('A task to perform on the webpage.'),
+      .describe('A task to search for. Eg: "What is the capital of Vietnam?"'),
   });
 
   public name: string = 'web-browser';
@@ -63,13 +63,15 @@ class WebBrowser extends StructuredTool {
         data: { results: { text: string }[] }[];
       };
 
-      if (data.length === 0 || data[0]!.results.length === 0) {
+      const text = data[0]?.results[0]?.text;
+
+      if (isNil(text)) {
         return 'No data found.';
       }
 
       const docs: Document[] = [
         new Document({
-          pageContent: data[0]!.results[0]!.text,
+          pageContent: text,
           metadata: { source: url },
         }),
       ];

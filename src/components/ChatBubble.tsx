@@ -23,7 +23,7 @@ import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 
 import { useCopyToClipboard } from '@/hooks';
-import { cn } from '@/lib/helpers';
+import { cn, truncate } from '@/lib/helpers';
 import type { IAgentAction, IChatMessage } from '@/types';
 
 import { MemoizedReactMarkdown } from './Markdown';
@@ -119,7 +119,7 @@ const EditChatMessageButton = ({
 const ChatBubble = ({
   emoji,
   message,
-  isTyping,
+  // isTyping,
   onChange,
   onRegenerate,
   onRemove,
@@ -160,18 +160,21 @@ const ChatBubble = ({
     }
   };
 
-  const getToolInput = (tool: IAgentAction['tool'], input: string) => {
+  const getToolInput = (
+    tool: IAgentAction['tool'],
+    toolInput: IAgentAction['toolInput'],
+  ) => {
     switch (tool) {
+      case 'search':
+        return (toolInput.query as string).trim();
+
       case 'web-browser':
-        return _(input)
-          .split(',')
-          .map((s) => s.trim())
-          .filter((s) => !isEmpty(s))
-          .reverse()
-          .join(' → ');
+        return `${toolInput.task} → ${truncate(toolInput.url, 30)}`;
 
       default:
-        return input;
+        return !isNil(toolInput.input) && !isEmpty(toolInput.input)
+          ? (toolInput.input as string).trim()
+          : null;
     }
   };
 
@@ -234,17 +237,16 @@ const ChatBubble = ({
                 key={`${tool}_${i.toString()}`}
                 className="w-full truncate text-xs text-muted-foreground"
               >
-                {!isEmpty(toolInput.input) ? (
+                {!isNil(getToolInput(tool, toolInput)) ? (
                   <>
                     <span className="font-medium">{getToolName(tool)}</span>:{' '}
-                    {getToolInput(tool, toolInput.input)}
+                    {getToolInput(tool, toolInput)}
                   </>
                 ) : (
                   <span className="font-medium">{getToolName(tool)}</span>
                 )}
               </div>
             ))
-            // .last()
             .value()}
         </div>
       )}
@@ -263,12 +265,19 @@ const ChatBubble = ({
             <MemoizedReactMarkdown
               className={cn(
                 'prose prose-sm select-text break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 prose-img:my-0',
-                message.role === 'assistant' && isTyping && 'typing',
+                // message.role === 'assistant' && isTyping && 'typing',
               )}
               remarkPlugins={[remarkGfm, remarkMath, remarkBreaks]}
               components={{
                 p: ({ children }) => {
                   return <p className="mb-2 last:mb-0">{children}</p>;
+                },
+                a: ({ children, ...props }) => {
+                  return (
+                    <a {...props} target="_blank" rel="noopener noreferrer">
+                      {children}
+                    </a>
+                  );
                 },
                 code: ({ inline, className, children, ...props }) => {
                   if (children.length > 0) {

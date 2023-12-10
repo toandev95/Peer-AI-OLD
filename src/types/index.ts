@@ -16,7 +16,7 @@ enum ChatPlugin {
 }
 
 type IAgentAction = AgentAction & {
-  toolInput: { input: string };
+  toolInput: any;
 };
 
 type IChat = {

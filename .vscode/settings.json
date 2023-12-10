@@ -10,21 +10,20 @@
     "source.addMissingImports": "always",
     "source.fixAll.eslint": "always"
   },
-  "eslint.rules.customizations": [{ "rule": "*", "severity": "warn" }], // ESLint errors in yellow warning
-  "typescript.tsdk": "node_modules/typescript/lib", // Use the workspace version of TypeScript
-  "typescript.enablePromptUseWorkspaceTsdk": true, // For security reasons it's require that users opt into using the workspace version of typescript
+  "eslint.rules.customizations": [{ "rule": "*", "severity": "warn" }],
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
   "jest.autoRun": {
-    "watch": false, // Start the jest with the watch flag
-    "onStartup": ["all-tests"] // Run all tests upon project launch
+    "watch": false,
+    "onStartup": ["all-tests"]
   },
-  "jest.showCoverageOnLoad": true, // Show code coverage when the project is launched
-  "jest.autoRevealOutput": "on-exec-error", // Don't automatically open test explorer terminal on launch
-  // Multiple language settings for json and jsonc files
+  "jest.showCoverageOnLoad": true,
+  "jest.autoRevealOutput": "on-exec-error",
   "[json][jsonc][yaml]": {
     "editor.formatOnSave": true,
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "prettier.ignorePath": ".gitignore", // Don't run prettier for files listed in .gitignore
+  "prettier.ignorePath": ".gitignore",
   "[postcss]": {
     "editor.formatOnSave": true,
     "editor.defaultFormatter": "esbenp.prettier-vscode"
