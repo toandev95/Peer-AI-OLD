@@ -1,3 +1,10 @@
+## [1.4.3](https://github.com/toandev95/Peer-AI/compare/v1.4.2...v1.4.3) (2023-12-10)
+
+
+### Performance Improvements
+
+* optimize results from scraper ([1617962](https://github.com/toandev95/Peer-AI/commit/1617962f6cccf4df19b7a5340fec8edae85ea382))
+
 ## [1.4.2](https://github.com/toandev95/Peer-AI/compare/v1.4.1...v1.4.2) (2023-12-05)
 
 
