@@ -60,6 +60,11 @@
       "subtitle": "Default model for new chats.",
       "placeholder": "Select a model"
     },
+    "customModel": {
+      "title": "Custom Model",
+      "subtitle": "Custom model for new chats.",
+      "placeholder": "Model name"
+    },
     "messageCompressionThreshold": {
       "title": "Compression Threshold",
       "subtitle": "When this threshold is reached, the conversation content will be summarized to reduce token consumption."

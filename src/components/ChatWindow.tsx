@@ -302,6 +302,7 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
       openAIEndpoint: emptyToUndefined(configStore.openAIEndpoint),
       language: i18n.language,
       ...currentChat.settings,
+      model: configStore.customModel || currentChat.settings.model,
       streaming: true,
     },
     headers: {
@@ -563,7 +564,10 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
             message={{
               id: uuid(),
               role: 'assistant',
-              content: error.message,
+              content:
+                error.message === 'network error'
+                  ? 'The connection to OpenAI was not successful, check your settings.'
+                  : error.message,
               createdAt: moment().toDate(),
             }}
           />

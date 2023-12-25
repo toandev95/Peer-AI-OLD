@@ -40,7 +40,7 @@ const useConfirmDialog = <T extends ConfirmDialogProps>(
     ConfirmDialogContext,
   ) as RequestConfirmDialog<T> | null;
 
-  if (!context) {
+  if (isNil(context)) {
     throw new Error('Component must be wrapped within ConfirmDialogProvider');
   }
 

@@ -15,6 +15,7 @@ type ConfigState = {
   openAIEndpoint?: string;
   models: string[];
   defaultModel?: string;
+  customModel?: string;
   maxTokens: number;
   temperature: number;
   topP: number;
@@ -40,6 +41,8 @@ const initialState: ConfigState = {
   openAIKey: undefined,
   openAIEndpoint: undefined,
   models: [],
+  defaultModel: undefined,
+  customModel: undefined,
   maxTokens: 2000,
   temperature: 0.3,
   topP: 1,

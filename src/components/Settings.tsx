@@ -322,6 +322,22 @@ const Settings = () => {
                 </Select>
               </BoxItem>
               <BoxItem
+                title={t('settings.customModel.title')}
+                subtitle={t('settings.customModel.subtitle')}
+              >
+                <Input
+                  type="text"
+                  placeholder={t('settings.customModel.placeholder')}
+                  className="text-center"
+                  value={configStore.customModel || ''}
+                  onChange={(ev) => {
+                    updateConfig({
+                      customModel: ev.currentTarget.value.toString().trim(),
+                    });
+                  }}
+                />
+              </BoxItem>
+              <BoxItem
                 title="Max Tokens"
                 subtitle="The maximum number of tokens to return."
               >

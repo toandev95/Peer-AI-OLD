@@ -20,9 +20,7 @@ import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
 import { LangChainStream } from '@/langchain';
-import { GoogleSearch } from '@/langchain/tools';
-import { DallE } from '@/langchain/tools/dall-e';
-import { WebBrowser } from '@/langchain/tools/webbrowser';
+import { DallE, GoogleSearch, WebBrowser } from '@/langchain/tools';
 import { auth, isTrue } from '@/lib/helpers';
 import type { IChatMessage } from '@/types';
 import { ChatPlugin } from '@/types';
@@ -117,7 +115,6 @@ export async function POST(
       presencePenalty,
       streaming,
       maxConcurrency: 5,
-      cache: true,
     },
     { baseURL: openAIEndpoint || process.env.OPENAI_API_URL },
   );

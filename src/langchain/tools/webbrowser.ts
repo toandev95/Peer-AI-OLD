@@ -4,7 +4,7 @@ import type { Embeddings } from 'langchain/embeddings/base';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { StructuredTool } from 'langchain/tools';
 import { MemoryVectorStore } from 'langchain/vectorstores/memory';
-import { isNil } from 'lodash';
+import _, { isNil } from 'lodash';
 import { z } from 'zod';
 
 /**
@@ -94,7 +94,9 @@ class WebBrowser extends StructuredTool {
         runManager?.getChild('vectorstore'),
       );
 
-      return results.map((r) => r.pageContent).join('\n');
+      return _(results)
+        .map((r) => r.pageContent)
+        .join('\n');
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error(e);

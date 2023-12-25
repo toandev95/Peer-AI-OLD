@@ -60,6 +60,11 @@
       "subtitle": "Mô hình mặc định cho các cuộc trò chuyện mới.",
       "placeholder": "Chọn một mô hình"
     },
+    "customModel": {
+      "title": "Mô Hình Tùy Chỉnh",
+      "subtitle": "Sử dụng một mô hình tùy chỉnh.",
+      "placeholder": "Tên mô hình"
+    },
     "messageCompressionThreshold": {
       "title": "Ngưỡng Nén Tin Nhắn",
       "subtitle": "Khi đạt đến ngưỡng này, nội dung cuộc trò chuyện sẽ được tóm tắt để giảm tiêu thụ token."

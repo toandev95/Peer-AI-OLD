@@ -55,7 +55,7 @@ class GoogleSearch extends StructuredTool {
           return new Document({
             pageContent: JSON.stringify({
               title: item.title,
-              description: !isNil(item.description) ? item.description : null,
+              description: item.description,
               url: item.url,
             }),
             metadata: { source: item.url },
@@ -63,7 +63,9 @@ class GoogleSearch extends StructuredTool {
         })
         .value();
 
-      return docs.map((r) => r.pageContent).join('\n');
+      return _(docs)
+        .map((r) => r.pageContent)
+        .join('\n');
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error(e);
