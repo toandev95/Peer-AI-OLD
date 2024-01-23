@@ -4,7 +4,15 @@ import { BaseCallbackHandler } from 'langchain/callbacks';
 import type { AgentAction } from 'langchain/schema';
 import { pick } from 'lodash';
 
-const LangChainStream = (callbacks?: AIStreamCallbacksAndOptions) => {
+type LangChainAIStream = {
+  stream: ReadableStream<any>;
+  writer: WritableStreamDefaultWriter<string>;
+  handlers: BaseCallbackHandler;
+};
+
+const getLangChainStream = (
+  callbacks?: AIStreamCallbacksAndOptions,
+): LangChainAIStream => {
   const stream = new TransformStream();
   const writer = stream.writable.getWriter();
 
@@ -79,4 +87,4 @@ const LangChainStream = (callbacks?: AIStreamCallbacksAndOptions) => {
   };
 };
 
-export { LangChainStream };
+export { getLangChainStream };

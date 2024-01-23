@@ -22,8 +22,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-          cache: "npm"
-      - run: npm install
+          cache: "pnpm"
+      - run: pnpm install
       - run: npx next build
 
   test:
@@ -42,21 +42,21 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-          cache: "npm"
-      - run: npm install
+          cache: "pnpm"
+      - run: pnpm install
 
       - if: github.event_name == 'pull_request'
         name: Validate all commits from PR
         run: npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
 
       - name: Linter
-        run: npm run lint
+        run: pnpm run lint
 
       - name: Type checking
-        run: npm run check-types
+        run: pnpm run check-types
 
       - name: Run unit tests
-        run: npm run test
+        run: pnpm run test
 
       - name: Install Playwright
         run: npx playwright install --with-deps

@@ -591,7 +591,7 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
           />
         ))}
         {isEmpty(filledMessages) && isEmpty(input) && isNil(error) && (
-          <div className="flex h-full w-full flex-col items-center justify-center gap-2">
+          <div className="flex size-full flex-col items-center justify-center gap-2">
             <RiOpenaiFill size={60} className="text-muted-foreground/60" />
             <div className="text-lg font-medium text-muted-foreground/60">
               {t('chatWindow.emptyChat')}

@@ -20,12 +20,12 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-          cache: "npm"
-      - run: npm install
+          cache: "pnpm"
+      - run: pnpm install
 
-      - run: npx npm-check-updates -u # Update dependencies
-      - run: rm -Rf node_modules package-lock.json
-      - run: npm install
+      - run: npx pnpm-check-updates -u # Update dependencies
+      - run: rm -Rf node_modules pnpm-lock.yaml
+      - run: pnpm install
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v4
         with:

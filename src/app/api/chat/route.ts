@@ -19,7 +19,7 @@ import type { ServerRuntime } from 'next';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
-import { LangChainStream } from '@/langchain';
+import { getLangChainStream } from '@/langchain';
 import { DallE, GoogleSearch, WebBrowser } from '@/langchain/tools';
 import { auth, isTrue } from '@/lib/helpers';
 import type { IChatMessage } from '@/types';
@@ -187,7 +187,7 @@ export async function POST(
     return new Response(result.output);
   }
 
-  const { stream, handlers } = LangChainStream();
+  const { stream, handlers } = getLangChainStream();
 
   executor.call({ input: currentMessage.content }, [handlers]);
 
