@@ -1,6 +1,6 @@
 'use client';
 
-import { isNil } from 'lodash';
+import { isNil, map } from 'lodash';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { RiChat3Line, RiCloseLine } from 'react-icons/ri';
@@ -73,7 +73,7 @@ const Masks = () => {
         <FadeIn>
           <Card>
             <div className="divide-y">
-              {maskStore.masks.map((mask) => (
+              {map(maskStore.masks, (mask) => (
                 <MaskItem
                   key={mask.id}
                   mask={mask}

@@ -119,10 +119,6 @@
         "title": "Đọc Web",
         "subtitle": "Đọc nội dung của một trang web."
       },
-      "pdfReader": {
-        "title": "Đọc PDF",
-        "subtitle": "Đọc nội dung của một tệp PDF từ một hoặc nhiều URL."
-      },
       "dalle": {
         "title": "DALL·E 3",
         "subtitle": "Tạo hình ảnh từ lời nhắc văn bản."

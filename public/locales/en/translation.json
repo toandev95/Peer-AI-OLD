@@ -119,10 +119,6 @@
         "title": "Web Reader",
         "subtitle": "Read the content of a website."
       },
-      "pdfReader": {
-        "title": "PDF Reader",
-        "subtitle": "Read the content of a PDF file from one or more public URLs."
-      },
       "dalle": {
         "title": "DALL·E 3",
         "subtitle": "Generate images from text prompts."

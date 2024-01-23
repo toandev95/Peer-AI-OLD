@@ -1,5 +1,7 @@
 'use client';
 
+import { map } from 'lodash';
+
 import {
   Toast,
   ToastClose,
@@ -15,7 +17,7 @@ export function Toaster() {
 
   return (
     <ToastProvider>
-      {toasts.map(({ id, title, description, action, ...props }) => {
+      {map(toasts, ({ id, title, description, action, ...props }) => {
         return (
           <Toast key={id} {...props}>
             <div className="grid gap-1">

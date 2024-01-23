@@ -11,7 +11,6 @@ enum ChatPlugin {
   Search = 'search',
   WebReader = 'web-reader',
   Wikipedia = 'wikipedia',
-  PDFReader = 'pdf-reader',
   ImageGenerator = 'image-generator',
 }
 

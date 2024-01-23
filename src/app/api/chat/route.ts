@@ -102,6 +102,7 @@ export async function POST(
     plugins: ChatPlugin[];
     streaming?: boolean;
     language?: string;
+    conversationId?: string;
   };
 
   const llm = new ChatOpenAI(
@@ -115,6 +116,7 @@ export async function POST(
       presencePenalty,
       streaming,
       maxConcurrency: 5,
+      maxRetries: 3,
     },
     { baseURL: openAIEndpoint || process.env.OPENAI_API_URL },
   );
@@ -152,10 +154,6 @@ export async function POST(
     );
   }
 
-  // if (includes(plugins, ChatPlugin.PDFReader)) {
-  //   tools.push(new PDFReader(embeddings));
-  // }
-
   if (
     isTrue(process.env.OPENAI_DALLE_ENABLED) &&
     includes(plugins, ChatPlugin.ImageGenerator) &&
@@ -179,6 +177,7 @@ export async function POST(
       User interface language: ${language || 'en'}.`,
     },
     memory,
+    maxIterations: 3,
     // verbose: true,
   });
 

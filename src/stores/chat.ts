@@ -153,7 +153,7 @@ const useChatStore = create<ChatState & ChatAction>()(
 
       removeMessageFromChat: (id, messageId) =>
         set((state) => ({
-          chats: state.chats.map((chat) =>
+          chats: map(state.chats, (chat) =>
             chat.id === id
               ? {
                   ...chat,

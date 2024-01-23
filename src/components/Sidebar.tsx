@@ -7,7 +7,7 @@ import type {
   DropResult,
 } from '@hello-pangea/dnd';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
-import _, { includes, isNil } from 'lodash';
+import _, { includes, isNil, map } from 'lodash';
 import moment from 'moment';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -178,7 +178,7 @@ const Sidebar = () => {
                   {...droppableProvided.droppableProps}
                   className="flex flex-col"
                 >
-                  {chatStore.chats.map((chat, i) => (
+                  {map(chatStore.chats, (chat, i) => (
                     <Draggable key={chat.id} index={i} draggableId={chat.id}>
                       {(
                         draggableProvided: DraggableProvided,

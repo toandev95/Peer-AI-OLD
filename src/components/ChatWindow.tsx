@@ -11,6 +11,7 @@ import _, {
   isNil,
   last,
   lastIndexOf,
+  map,
   startsWith,
   takeWhile,
 } from 'lodash';
@@ -304,6 +305,7 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
       ...currentChat.settings,
       model: configStore.customModel || currentChat.settings.model,
       streaming: true,
+      conversationId: currentChat.id,
     },
     headers: {
       ...(!isNil(emptyToUndefined(configStore.accessCode))
@@ -572,7 +574,7 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
             }}
           />
         )}
-        {filledMessages.map((message) => (
+        {map(filledMessages, (message) => (
           <ChatBubble
             key={message.id}
             emoji={getEmojiFromRole(message.role)}
@@ -600,7 +602,7 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
       <div className="sticky bottom-0 flex flex-col gap-2 border-t bg-background/60 px-4 py-3 backdrop-blur">
         {isShowPrompt && (
           <FadeIn className="flex max-h-[20vh] flex-col divide-y overflow-y-auto overscroll-contain rounded-lg border bg-background text-xs scrollbar scrollbar-thumb-accent-foreground/30 scrollbar-thumb-rounded-full scrollbar-w-[3px]">
-            {promptStore.prompts.map((prompt) => (
+            {map(promptStore.prompts, (prompt) => (
               <div
                 key={prompt.id}
                 className="flex cursor-pointer flex-col gap-0.5 px-2.5 py-2 transition-colors hover:bg-accent"
@@ -649,14 +651,6 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
                 plugin={ChatPlugin.WebReader}
                 onCheckedChange={handlePluginChange}
               />
-              {/* <ToolbarPluginItem
-                title={t('chatWindow.toolbarPlugins.pdfReader.title')}
-                subtitle={t('chatWindow.toolbarPlugins.pdfReader.subtitle')}
-                values={currentChat.settings.plugins}
-                plugin={ChatPlugin.PDFReader}
-                onCheckedChange={handlePluginChange}
-                disabled
-              /> */}
               {isDallEEnabled && (
                 <ToolbarPluginItem
                   title={t('chatWindow.toolbarPlugins.dalle.title')}
@@ -711,7 +705,7 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
-                          {configStore.models.map((model) => (
+                          {map(configStore.models, (model) => (
                             <SelectItem key={model} value={model}>
                               {getModelNameByModelID(model)}
                             </SelectItem>
@@ -752,8 +746,8 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
                 >
                   <SliderInput
                     value={[currentChat.settings.temperature]}
-                    min={0.1}
-                    max={1}
+                    min={0}
+                    max={2}
                     step={0.1}
                     disabled={!isEnableChatConfig}
                     onValueChange={(values) => {
@@ -786,8 +780,8 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
                 >
                   <SliderInput
                     value={[currentChat.settings.frequencyPenalty]}
-                    min={0}
-                    max={1}
+                    min={-2.0}
+                    max={2.0}
                     step={0.1}
                     disabled={!isEnableChatConfig}
                     onValueChange={(values) => {
@@ -803,8 +797,8 @@ const ChatWindow = ({ id }: { id: IChat['id'] }) => {
                 >
                   <SliderInput
                     value={[currentChat.settings.presencePenalty]}
-                    min={0}
-                    max={1}
+                    min={-2.0}
+                    max={2.0}
                     step={0.1}
                     disabled={!isEnableChatConfig}
                     onValueChange={(values) => {

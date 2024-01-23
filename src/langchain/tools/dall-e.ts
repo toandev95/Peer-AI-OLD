@@ -1,5 +1,5 @@
 import { Tool } from 'langchain/tools';
-import { isEmpty } from 'lodash';
+import { isEmpty, map } from 'lodash';
 import OpenAI from 'openai';
 
 /**
@@ -42,7 +42,7 @@ class DallE extends Tool {
         return 'No image generated.';
       }
 
-      return JSON.stringify(res.data.map((item) => item.url));
+      return JSON.stringify(map(res.data, (item) => item.url));
     } catch (e) {
       return (e as Error).toString();
     }

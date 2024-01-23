@@ -1,6 +1,6 @@
 'use client';
 
-import _, { isEmpty, isNil } from 'lodash';
+import _, { isEmpty, isNil, map } from 'lodash';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
@@ -114,7 +114,7 @@ const ChatStart = () => {
                   key={`mc_${k.toString()}`}
                   className="flex gap-3 [&:nth-child(odd)]:ml-24"
                 >
-                  {chunks.map((mask, i) => (
+                  {map(chunks, (mask, i) => (
                     <button
                       key={`mc_${k.toString()}_${i.toString()}`}
                       type="button"

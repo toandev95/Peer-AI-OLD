@@ -8,11 +8,13 @@ const useEnterSubmit = (
   sendKey: SendKeys,
 ): {
   formRef: RefObject<HTMLFormElement>;
-  onKeyDown: (ev: KeyboardEvent<HTMLTextAreaElement>) => void;
+  onKeyDown: (ev: KeyboardEvent<HTMLTextAreaElement | HTMLDivElement>) => void;
 } => {
   const formRef = useRef<HTMLFormElement>(null);
 
-  const handleKeyDown = (ev: KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleKeyDown = (
+    ev: KeyboardEvent<HTMLTextAreaElement | HTMLDivElement>,
+  ) => {
     const { isComposing } = ev.nativeEvent;
 
     const isEnter = ev.key === 'Enter' && !ev.shiftKey && !isComposing;

@@ -7,7 +7,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@radix-ui/react-popover';
-import { isEmpty, isNil, map, toNumber, valuesIn } from 'lodash';
+import _, { isEmpty, isNil, map, toNumber } from 'lodash';
 import { useRouter } from 'next/navigation';
 import { useTheme } from 'next-themes';
 import type { ReactNode } from 'react';
@@ -206,11 +206,14 @@ const Settings = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
-                      {valuesIn(SendKeys).map((model) => (
-                        <SelectItem key={model} value={model}>
-                          {model}
-                        </SelectItem>
-                      ))}
+                      {_(SendKeys)
+                        .valuesIn()
+                        .map((model) => (
+                          <SelectItem key={model} value={model}>
+                            {model}
+                          </SelectItem>
+                        ))
+                        .value()}
                     </SelectGroup>
                   </SelectContent>
                 </Select>
@@ -312,7 +315,7 @@ const Settings = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
-                      {configStore.models.map((model) => (
+                      {map(configStore.models, (model) => (
                         <SelectItem key={model} value={model}>
                           {getModelNameByModelID(model)}
                         </SelectItem>
@@ -358,8 +361,8 @@ const Settings = () => {
               >
                 <SliderInput
                   value={[configStore.temperature]}
-                  min={0.1}
-                  max={1}
+                  min={0}
+                  max={2}
                   step={0.1}
                   onValueChange={(values) => {
                     updateConfig({ temperature: values[0] || 0 });
@@ -386,8 +389,8 @@ const Settings = () => {
               >
                 <SliderInput
                   value={[configStore.frequencyPenalty]}
-                  min={0}
-                  max={1}
+                  min={-2.0}
+                  max={2.0}
                   step={0.1}
                   onValueChange={(values) => {
                     updateConfig({ frequencyPenalty: values[0] || 0 });
@@ -400,8 +403,8 @@ const Settings = () => {
               >
                 <SliderInput
                   value={[configStore.presencePenalty]}
-                  min={0}
-                  max={1}
+                  min={-2.0}
+                  max={2.0}
                   step={0.1}
                   onValueChange={(values) => {
                     updateConfig({ presencePenalty: values[0] || 0 });

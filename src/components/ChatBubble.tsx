@@ -146,9 +146,6 @@ const ChatBubble = ({
       case 'search':
         return '🔍 Search';
 
-      case 'pdf':
-        return '📃 PDF Reader';
-
       case 'dall-e':
         return '🌄 DALL·E 3';
 
@@ -279,28 +276,7 @@ const ChatBubble = ({
                     </a>
                   );
                 },
-                code: ({ inline, className, children, ...props }) => {
-                  if (children.length > 0) {
-                    if (children[0] === '▍') {
-                      return (
-                        <span className="mt-1 animate-pulse cursor-default">
-                          ▍
-                        </span>
-                      );
-                    }
-
-                    // eslint-disable-next-line no-param-reassign
-                    children[0] = (children[0] as string).replace('`▍`', '▍');
-                  }
-
-                  if (inline) {
-                    return (
-                      <code className={className} {...props}>
-                        {children}
-                      </code>
-                    );
-                  }
-
+                code: ({ className, children }) => {
                   const match = /language-(\w+)/.exec(className || '');
 
                   return (

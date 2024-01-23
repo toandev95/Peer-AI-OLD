@@ -1,3 +1,4 @@
+import { forEach, map } from 'lodash';
 import type { ReactNode } from 'react';
 import { useEffect, useState } from 'react';
 
@@ -82,7 +83,7 @@ export const reducer = (state: State, action: Action): State => {
     case 'UPDATE_TOAST':
       return {
         ...state,
-        toasts: state.toasts.map((t) =>
+        toasts: map(state.toasts, (t) =>
           t.id === action.toast.id ? { ...t, ...action.toast } : t,
         ),
       };
@@ -93,14 +94,14 @@ export const reducer = (state: State, action: Action): State => {
       if (toastId) {
         addToRemoveQueue(toastId);
       } else {
-        state.toasts.forEach((toast) => {
+        forEach(state.toasts, (toast) => {
           addToRemoveQueue(toast.id);
         });
       }
 
       return {
         ...state,
-        toasts: state.toasts.map((t) =>
+        toasts: map(state.toasts, (t) =>
           t.id === toastId || toastId === undefined
             ? {
                 ...t,
@@ -135,7 +136,7 @@ let memoryState: State = { toasts: [] };
 const dispatch = (action: Action) => {
   memoryState = reducer(memoryState, action);
 
-  listeners.forEach((listener) => {
+  forEach(listeners, (listener) => {
     listener(memoryState);
   });
 };
