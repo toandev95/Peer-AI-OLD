@@ -276,14 +276,18 @@ const ChatBubble = ({
                     </a>
                   );
                 },
-                code: ({ className, children }) => {
+                code: ({ className, children, ...props }) => {
                   const match = /language-(\w+)/.exec(className || '');
 
-                  return (
+                  return !isNil(match) ? (
                     <CodeBlock
-                      language={(match && match[1]) || ''}
+                      language={match[1]!}
                       value={String(children).replace(/\n$/, '')}
                     />
+                  ) : (
+                    <code {...props} className={className}>
+                      {children}
+                    </code>
                   );
                 },
               }}
