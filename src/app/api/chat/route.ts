@@ -1,3 +1,4 @@
+import { WikipediaQueryRun } from '@langchain/community/tools/wikipedia_query_run';
 import { ipAddress } from '@vercel/edge';
 import { StreamingTextResponse } from 'ai';
 import { initializeAgentExecutorWithOptions } from 'langchain/agents';
@@ -11,7 +12,6 @@ import {
   SystemMessage,
 } from 'langchain/schema';
 import type { StructuredTool } from 'langchain/tools';
-import { WikipediaQueryRun } from 'langchain/tools';
 import { Calculator } from 'langchain/tools/calculator';
 import _, { filter, includes, isEmpty, isNil, last, startsWith } from 'lodash';
 import moment from 'moment';
@@ -128,7 +128,6 @@ export async function POST(
     },
     { baseURL: openAIEndpoint || process.env.OPENAI_API_URL },
   );
-
   const chatHistory = new ChatMessageHistory(previousMessages);
 
   const memory = new BufferMemory({
@@ -178,7 +177,6 @@ export async function POST(
     },
     memory,
     maxIterations: 3,
-    // verbose: true,
   });
 
   if (!streaming) {

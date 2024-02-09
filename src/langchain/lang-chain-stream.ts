@@ -1,6 +1,6 @@
+import { BaseCallbackHandler } from '@langchain/core/callbacks/base';
 import type { AIStreamCallbacksAndOptions } from 'ai';
 import { createCallbacksTransformer } from 'ai';
-import { BaseCallbackHandler } from 'langchain/callbacks';
 import type { AgentAction } from 'langchain/schema';
 import { pick } from 'lodash';
 
