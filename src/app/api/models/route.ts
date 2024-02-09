@@ -21,12 +21,11 @@ export async function POST(req: NextRequest): Promise<NextResponse<any>> {
 
     const openai = new OpenAI({
       apiKey: openAIKey,
-      baseURL: openAIEndpoint,
+      baseURL: openAIEndpoint || process.env.OPENAI_API_URL,
     });
 
-    const res = await openai.models.list();
-
-    const models = _(res.data)
+    const { data } = await openai.models.list();
+    const models = _(data)
       .filter((model) => isEqual(model.owned_by, 'openai'))
       // .filter((model) => startsWith(model.id, 'gpt-'))
       .filter((model) => includes(['gpt-4', 'gpt-3.5-turbo'], model.id))
