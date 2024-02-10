@@ -1,3 +1,4 @@
+import type { CallbackHandlerMethods } from '@langchain/core/callbacks/base';
 import { BaseCallbackHandler } from '@langchain/core/callbacks/base';
 import type { AIStreamCallbacksAndOptions } from 'ai';
 import { createCallbacksTransformer } from 'ai';
@@ -7,7 +8,7 @@ import { pick } from 'lodash';
 type LangChainAIStream = {
   stream: ReadableStream<any>;
   writer: WritableStreamDefaultWriter<string>;
-  handlers: BaseCallbackHandler;
+  handlers: CallbackHandlerMethods;
 };
 
 const getLangChainStream = (

@@ -1,7 +1,12 @@
 import { WikipediaQueryRun } from '@langchain/community/tools/wikipedia_query_run';
+import {
+  ChatPromptTemplate,
+  MessagesPlaceholder,
+} from '@langchain/core/prompts';
+import type { StructuredToolInterface } from '@langchain/core/tools';
 import { ipAddress } from '@vercel/edge';
 import { StreamingTextResponse } from 'ai';
-import { initializeAgentExecutorWithOptions } from 'langchain/agents';
+import { AgentExecutor, createOpenAIToolsAgent } from 'langchain/agents';
 import { ChatOpenAI } from 'langchain/chat_models/openai';
 import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
 import { BufferMemory, ChatMessageHistory } from 'langchain/memory';
@@ -11,7 +16,6 @@ import {
   HumanMessage,
   SystemMessage,
 } from 'langchain/schema';
-import type { StructuredTool } from 'langchain/tools';
 import { Calculator } from 'langchain/tools/calculator';
 import _, { filter, includes, isEmpty, isNil, last, startsWith } from 'lodash';
 import moment from 'moment';
@@ -125,6 +129,7 @@ export async function POST(
     {
       openAIApiKey: openAIKey,
       maxConcurrency: 5,
+      maxRetries: 3,
     },
     { baseURL: openAIEndpoint || process.env.OPENAI_API_URL },
   );
@@ -137,7 +142,7 @@ export async function POST(
     outputKey: 'output',
   });
 
-  const tools: StructuredTool[] = [new Calculator()];
+  const tools: StructuredToolInterface[] = [new Calculator()];
 
   if (includes(plugins, ChatPlugin.Search)) {
     tools.push(new GoogleSearch(process.env.BROWSERLESS_URL as string));
@@ -166,28 +171,40 @@ export async function POST(
     );
   }
 
-  const executor = await initializeAgentExecutorWithOptions(tools, llm, {
-    agentType: 'openai-functions',
-    agentArgs: {
-      prefix: `You are PeerAI, a large language model trained by OpenAI.
+  const prompt = ChatPromptTemplate.fromMessages([
+    [
+      'system',
+      `You are PeerAI, a large language model trained by OpenAI.
       Knowledge was cut off at the time of October 2021.
       The current model: ${model}.
       The current time: ${moment().format('LLLL')}.
       User interface language: ${language || 'en'}.`,
-    },
+    ],
+    new MessagesPlaceholder('chat_history'),
+    ['human', '{input}'],
+    new MessagesPlaceholder('agent_scratchpad'),
+  ]);
+  const agent = await createOpenAIToolsAgent({
+    llm,
+    tools,
+    prompt,
+  });
+  const executor = new AgentExecutor({
+    agent,
+    tools,
     memory,
-    maxIterations: 3,
+    maxIterations: 2,
   });
 
   if (!streaming) {
-    const result = await executor.call({ input: currentMessage.content });
+    const result = await executor.invoke({ input: currentMessage.content });
 
     return new Response(result.output);
   }
 
   const { stream, handlers } = getLangChainStream();
 
-  executor.call({ input: currentMessage.content }, [handlers]);
+  executor.invoke({ input: currentMessage.content }, { callbacks: [handlers] });
 
   return new StreamingTextResponse(stream);
 }
